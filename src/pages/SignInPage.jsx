@@ -115,7 +115,7 @@ export default function SignInPage() {
           </div>
 
           <button type="submit" className="btn-signin">
-            Registrarse
+            <a href="/signin">Regístrate</a>
           </button>
         </form>
 
