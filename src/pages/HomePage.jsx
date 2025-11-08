@@ -7,6 +7,7 @@ import Img4 from "../assets/img/img4.jpg";
 import { Col, Container, Row, Card, Button } from "react-bootstrap";
 import Card1 from "../assets/img/card1.jpg";
 import { Link } from "react-router-dom";
+import PaymentMethods from "../components/PaymentMethods";
 
 
 const sampleProducts = [
@@ -186,6 +187,7 @@ const HomePage = () => {
 
         <hr />
       </Container>
+      <PaymentMethods />
     </>
   );
 };

@@ -1,58 +1,66 @@
-
-* {
-    box-sizing: border-box;
-}
-form {
-    display: block;
-    background-color: #fff;
-    box-shadow: 1px 1px 3px 2px #ddd;
-    margin: 40px auto;
-    max-width: 600px;
-    max-height: 700px;
-    padding: 25px 40px;
+.contact-container {
+  background: #f8f9fa;
+  padding: 3rem 1rem;
+  border-top: 2px solid #e0e0e0;
 }
 
-form input, textarea {
-    display: flex;
-    flex-direction: column;
+.contact-title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  color: #333;
 }
 
-form input, textarea {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin: 15px auto;
-    padding: 8px;
-    background-color: #f1f1f1;
-    border: 1px solid #ddd;
+.contact-title span {
+  color: #28a745;
 }
 
-form span {
-    color: rgb(24, 116, 39);
+.contact-form {
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-form button {
-    height: 30px;
-    width: 80px;
-    align-items: center;
-    border: none;
-    background-color: rgb(116, 169, 37);
-    color: #fff;
-    cursor: pointer;
+.contact-form input,
+.contact-form textarea {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  width: 100%;
+  resize: none;
+  transition: all 0.2s ease;
 }
 
-.btn {
-    background: rgb(24, 116, 39);
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #28a745;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
 }
 
-.btn:hover{
-	background: white;
-    color: black;
+.contact-form button {
+  align-self: center;
+  margin-top: 1rem;
 }
 
-btn:hover:after,
-btn:hover:before{
-	transform: rotate(45deg), scaleX(130%);
-	background: rgb(45, 98, 37);
-	transition: all ease 0.5s;
+/* Alertas */
+.alert {
+  max-width: 400px;
+  margin: 1rem auto;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+}
+
+.alert-success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #842029;
 }
