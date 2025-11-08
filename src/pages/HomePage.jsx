@@ -1,104 +1,186 @@
-import React from "react";
+import React, { useState } from "react";
 import Carousel from "react-bootstrap/Carousel";
-import '../Styles/HomePage.css';
-import Img1 from '../assets/img/img1.jpg';
-import Img2 from '../assets/img/img2.jpg';
-import Img4 from '../assets/img/img4.jpg';
-import { Col, Container, Row, Card } from "react-bootstrap";
-import Card1 from '../assets/img/card1.jpg';
-import Gallery from "../components/Gallery";
-
+import "../Styles/HomePage.css";
+import Img1 from "../assets/img/img1.jpg";
+import Img2 from "../assets/img/img2.jpg";
+import Img4 from "../assets/img/img4.jpg";
+import { Col, Container, Row, Card, Button } from "react-bootstrap";
+import Card1 from "../assets/img/card1.jpg";
 import { Link } from "react-router-dom";
 
 
+const sampleProducts = [
+  {
+    id: "p1",
+    title: "Hoodie Neon",
+    image: Img1,
+    price: 7990,
+    colors: ["Black", "White", "Neon"],
+  },
+  {
+    id: "p2",
+    title: "T-Shirt Basic",
+    image: Img2,
+    price: 3490,
+    colors: ["White", "Grey"],
+  },
+  {
+    id: "p3",
+    title: "Accessory Cap",
+    image: Img4,
+    price: 1590,
+    colors: ["Black"],
+  },
+  {
+    id: "p4",
+    title: "Jogger",
+    image: Card1,
+    price: 9990,
+    colors: ["Khaki", "Black", "Navy"],
+  },
+];
+
+function calcCuotas(price, cuotas = 6) {
+  const val = (price / cuotas).toFixed(0);
+  return `${cuotas} x $${val}`;
+}
+
 const HomePage = () => {
+  const [touchActive, setTouchActive] = useState(null); // id del card tocada (mobile)
 
-    return (
-        <>
-            <Container fluid>
-                <Row className="row-card justify-content-center align-items-center">
-                    <Col lg={16}>
-                        <Carousel>
-                            <Carousel.Item interval={2000}>
-                                <img className="d-block w-100"
-                                    src={Img1}
-                                    alt="First slide"/>
-                                <Carousel.Caption>
-                                    <h3>Hoodies</h3>
-                                    <p className="d-none d-sm-block color-text">
-                                        Nulla vitae elit libero, a pharetra augue mollis interdum.
-                                    </p>
-                                </Carousel.Caption>
-                            </Carousel.Item>
-                            <Carousel.Item interval={2000}>
-                                <img className="d-block w-100"
-                                    src={Img2}
-                                    alt="Second slide"/>
+  function handleCardTouch(e, id) {
+    if (touchActive !== id) {
+      e.preventDefault();
+      setTouchActive(id);
+      setTimeout(() => {
+        if (touchActive === id) setTouchActive(null);
+      }, 6000);
+    } else {
+      setTouchActive(null);
+      alert("Comprar producto (simulado): " + id);
+    }
+  }
 
-                                <Carousel.Caption>
-                                    <h3>T-shirts</h3>
-                                    <p className="d-none d-sm-block">
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                    </p>
-                                </Carousel.Caption>
-                            </Carousel.Item>
-                            <Carousel.Item interval={2000}>
-                                <img className="d-block w-100"
-                                    src={Img4}
-                                    alt="Third slide"/>
+  return (
+    <>
+      <Carousel className="custom-carousel" fade indicators={false}>
+        <Carousel.Item interval={3000}>
+          <img className="d-block w-100 carousel-full" src={Img1} alt="First slide" />
+          <Carousel.Caption>
+            <h3>Hoodies</h3>
+            <p className="d-none d-sm-block color-text">
+              Nulla vitae elit libero, a pharetra augue mollis interdum.
+            </p>
+          </Carousel.Caption>
+        </Carousel.Item>
 
-                                <Carousel.Caption>
-                                    <h3>Accesories</h3>
-                                    <p className="d-none d-sm-block">
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                    </p>
-                                </Carousel.Caption>
-                            </Carousel.Item>
-                        </Carousel>
-                    </Col>
-                </Row>
+        <Carousel.Item interval={3000}>
+          <img className="d-block w-100 carousel-full" src={Img2} alt="Second slide" />
+          <Carousel.Caption>
+            <h3>T-shirts</h3>
+            <p className="d-none d-sm-block">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            </p>
+          </Carousel.Caption>
+        </Carousel.Item>
 
-                <Col className=" text-center">
-                    <h2 className="display-5 mt-3">Unisex style</h2>
-                    <p className="row-card lead text-muted">Being able to make unique designs come true to give you style and why not, CREATE YOUR OWN EMPIRE!
-                    </p>
-                    <Gallery />
+        <Carousel.Item interval={3000}>
+          <img className="d-block w-100 carousel-full" src={Img4} alt="Third slide" />
+          <Carousel.Caption>
+            <h3>Accessories</h3>
+            <p className="d-none d-sm-block">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            </p>
+          </Carousel.Caption>
+        </Carousel.Item>
+      </Carousel>
 
+      <Container fluid>
+        <Col className="text-center">
+          <section className="newin-section container mt-5">
+            <div className="text-center mb-4">
+                <h3 className="newin-title">New in</h3>
+            </div>
+
+            <Row xs={1} sm={2} md={2} lg={4} className="g-3">
+              {sampleProducts.map((p) => (
+                <Col key={p.id}>
+                  <article
+                    className={`product-card ${touchActive === p.id ? "touch-active" : ""}`}
+                    onTouchStart={(e) => handleCardTouch(e, p.id)}
+                    onClick={() => {
+                      if (!("ontouchstart" in window)) {
+                        alert("Abrir detalle (simulado): " + p.title);
+                      }
+                    }}
+                  >
+                    <div className="product-media">
+                      <img src={p.image} alt={p.title} />
+                    </div>
+
+                    <div className="product-body">
+                      <h5 className="product-title">{p.title}</h5>
+                      <p className="product-price">${p.price}</p>
+                      <p className="product-colors">Colores: {p.colors.join(", ")}</p>
+                      <p className="product-cuotas text-muted">{calcCuotas(p.price, 6)}</p>
+                    </div>
+
+                    <div className="product-actions">
+                      <Button
+                        className="buy-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          alert("Comprar (simulado): " + p.title);
+                        }}
+                      >
+                        Comprar
+                      </Button>
+                    </div>
+                  </article>
                 </Col>
+              ))}
+            </Row>
+            <br/>
+        <div className="text-center mt-4">
+          <Link to="/catalogo" className="btn btn-verde">
+            Ver catálogo
+          </Link>
+        </div>
 
-                <hr/>
+          </section>
+        </Col>
 
-                    <h1 className="text-center">Ventas minoristas y mayoristas
-                    </h1>
-                    <Row xs={1}
-                        md={3}
-                        className="g-4 row-card">
-                        {
-                        Array.from({length: 3}).map((dataClients, idx) => (
-                            <Col key={idx}>
-                                <Card>
-                                    <Card.Img variant="top"
-                                        src={Card1}/>
-                                    <Card.Body>
-                                        <Card.Title>Business</Card.Title>
-                                        <Card.Text>
-                                            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Persplaceat labore, corporis, laboriosam aperiam ratione error illo!</p>
-                                        </Card.Text>
-                                        <Link className="btn btn-success" href="https://api.whatsapp.com/send/?phone=3814988682&text&type=phone_number&app_absent=0" type="button" >See details</Link>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        ))
-                    } </Row>
-
-                <hr/>
-
-            </Container>
-        </>
-
-
-    );
+        <hr />
+        <h1 className="text-center">Ventas minoristas y mayoristas</h1>
+        <Row xs={1} md={3} className="g-4 row-card">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <Col key={idx}>
+              <Card>
+                <Card.Img variant="top" src={Card1} />
+                <Card.Body>
+                  <Card.Title>Business</Card.Title>
+                  <Card.Text>
+                    <p>
+                      Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                      Persplaceat labore, corporis, laboriosam aperiam ratione error illo!
+                    </p>
+                  </Card.Text>
+                  <Link
+                    className="btn btn-success"
+                    to="https://api.whatsapp.com/send/?phone=3814988682&text&type=phone_number&app_absent=0"
+                    target="_blank"
+                  >
+                    See details
+                  </Link>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+        <hr />
+      </Container>
+    </>
+  );
 };
-
 
 export default HomePage;

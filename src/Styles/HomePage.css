@@ -42,3 +42,140 @@ btn:hover:before{
 .row-card {
     padding-bottom: 45px;
 }
+
+.custom-carousel {
+  width: 100%;
+  height: 90vh; 
+  overflow: hidden;
+}
+
+.custom-carousel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-caption {
+  bottom: 10%; 
+}
+
+/* ---------- NEW IN: tarjetas ---------- */
+.newin-section {
+  padding: 0 1rem 2.5rem 1rem;
+}
+
+
+/* tarjeta */
+.product-card {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  transition: transform .18s ease, box-shadow .18s ease;
+  cursor: pointer;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+}
+
+.product-media img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display:block;
+}
+
+.product-body {
+  padding: 0.8rem 1rem 3.4rem 1rem;
+  flex-grow: 1;
+}
+
+.product-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.product-price {
+  margin: .3rem 0;
+  font-weight: 700;
+}
+
+.product-colors {
+  margin: 0;
+  font-size: .9rem;
+}
+
+.product-actions {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 12px;
+  width: calc(100% - 2rem);
+  display:flex;
+  justify-content:center;
+  pointer-events: none; /* para que no interfiera con el hover hasta que se muestre */
+}
+
+.product-actions .buy-btn {
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(8px) scale(.98);
+  transition: opacity .18s ease, transform .18s ease;
+  width: 100%;
+  max-width: 220px;
+}
+
+.product-card:hover .product-actions,
+.product-card:focus-within .product-actions {
+  pointer-events: auto;
+}
+.product-card:hover .product-actions .buy-btn,
+.product-card:focus-within .product-actions .buy-btn {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.product-card.touch-active .product-actions .buy-btn {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (max-width: 576px) {
+  .product-media img { height: 180px; }
+  .product-card { min-height: 300px; }
+  .product-body { padding-bottom: 3.8rem; }
+}
+
+.newin-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.2rem;
+}
+
+
+.btn-verde {
+  background-color: #28a745; 
+  color: white;
+  padding: 0.6rem 1.8rem;
+  border-radius: 25px;
+  border: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-verde:hover {
+  background-color: #218838;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
