@@ -1,0 +1,59 @@
+.payment-section {
+  background-color: white;
+  border-top: 2px solid white;
+  padding: 4rem 0;        
+  margin-bottom: 5rem;
+}
+
+
+.payment-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.payment-icons img {
+  height: 40px;
+  filter: grayscale(20%);
+  transition: all 0.3s ease;
+}
+
+.payment-icons img:hover {
+  transform: scale(1.1);
+  filter: grayscale(0%);
+}
+
+.payment-methods {
+  background-color: white;
+  padding: 4rem 0; 
+  text-align: center;
+  margin-top: 4rem; 
+  margin-bottom: 4rem; 
+}
+
+.payment-methods h5 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+  letter-spacing: 3px;
+}
+
+.payment-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem; 
+  flex-wrap: wrap;
+}
+
+.payment-icons img {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.payment-icons img:hover {
+  transform: scale(1.1);
+}

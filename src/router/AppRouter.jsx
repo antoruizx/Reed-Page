@@ -11,7 +11,8 @@ import Footer2 from "../components/Footer2";
 import Products from "../pages/Products";
 import { ContactUs } from "../pages/ContactUs";
 import Login from "../pages/Login";
-
+import WhatsAppButton from "../components/WhatsAppButton";
+import PaymentMethods from "../components/PaymentMethods";
 
 
 function AppRouter () {
@@ -28,7 +29,9 @@ function AppRouter () {
                 <Route path="contactUs" element={<ContactUs /> } />
                 <Route path="login" element={<Login /> } />
             </Routes>
+            <PaymentMethods />
             <Footer2 />
+            <WhatsAppButton />
         </Router>
     );
 };

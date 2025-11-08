@@ -150,33 +150,40 @@ const HomePage = () => {
           </section>
         </Col>
 
-        <hr />
-        <h1 className="text-center">Ventas minoristas y mayoristas</h1>
-        <Row xs={1} md={3} className="g-4 row-card">
-          {Array.from({ length: 3 }).map((_, idx) => (
-            <Col key={idx}>
-              <Card>
-                <Card.Img variant="top" src={Card1} />
-                <Card.Body>
-                  <Card.Title>Business</Card.Title>
-                  <Card.Text>
-                    <p>
-                      Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                      Persplaceat labore, corporis, laboriosam aperiam ratione error illo!
-                    </p>
-                  </Card.Text>
-                  <Link
-                    className="btn btn-success"
-                    to="https://api.whatsapp.com/send/?phone=3814988682&text&type=phone_number&app_absent=0"
-                    target="_blank"
-                  >
-                    See details
-                  </Link>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        {/* Categorías 2x2 */}
+<section className="categories-section text-center my-5">
+  <h2 className="categories-title mb-4">Categorías</h2>
+  <div className="categories-grid">
+    <Link to="/catalogo?cat=hoodies" className="category-card">
+      <img src={Img1} alt="Hoodies" className="category-img" />
+      <div className="overlay">
+        <span>Hoodies</span>
+      </div>
+    </Link>
+
+    <Link to="/catalogo?cat=tshirts" className="category-card">
+      <img src={Img2} alt="T-Shirts" className="category-img" />
+      <div className="overlay">
+        <span>T-Shirts</span>
+      </div>
+    </Link>
+
+    <Link to="/catalogo?cat=accesories" className="category-card">
+      <img src={Img4} alt="Accesorios" className="category-img" />
+      <div className="overlay">
+        <span>Accesorios</span>
+      </div>
+    </Link>
+
+    <Link to="/catalogo?cat=custom" className="category-card">
+      <img src={Card1} alt="Custom" className="category-img" />
+      <div className="overlay">
+        <span>Custom</span>
+      </div>
+    </Link>
+  </div>
+</section>
+
         <hr />
       </Container>
     </>

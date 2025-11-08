@@ -3,6 +3,40 @@
 }
 
 .navbar-brand a img {
-    max-width: 40px;
+    max-width: 22px;
 
     }
+
+    .navbar {
+  padding: 0.4rem 1rem;
+}
+
+.navbar-brand img {
+  height: 45px;
+  transition: transform 0.2s ease;
+}
+
+.navbar-brand img:hover {
+  transform: scale(1.05);
+}
+
+.navbar-nav .nav-link {
+  margin-left: 1rem;
+  font-weight: 510;
+  transition: color 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #218838 !important;
+}
+
+.boton .nav-link {
+  background-color: #218838;
+  color: white !important;
+  border-radius: 30px;
+  padding: 0.4rem 1.3rem;
+}
+
+.boton .nav-link:hover {
+  background-color: #ffffff;
+}
