@@ -11,7 +11,7 @@ import Footer2 from "../components/Footer2";
 import Products from "../pages/Products";
 import { ContactUs } from "../pages/ContactUs";
 import Login from "../pages/Login";
-import WhatsAppButton from "../components/WhatsAppButton";
+import WhatsappButton from "../components/WhatsappButton";
 
 function AppRouter() {
   return (
@@ -35,7 +35,7 @@ function AppRouter() {
         <Route path="*" element={<ErrorPage />} />
       </Routes>
       <Footer2 />
-      <WhatsAppButton />
+      <WhatsappButton />
     </Router>
   );
 }
