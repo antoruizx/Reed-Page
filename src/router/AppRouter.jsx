@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Form } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HomePage from "../pages/HomePage";
 import AboutUsPage from "../pages/AboutUsPage";
@@ -13,26 +13,31 @@ import { ContactUs } from "../pages/ContactUs";
 import Login from "../pages/Login";
 import WhatsAppButton from "../components/WhatsAppButton";
 
-
-
-function AppRouter () {
-    return(
-        <Router>
-            <Navbar />
-            <Routes>
-                <Route path="" element={<HomePage />}  />   
-                <Route path="aboutUs" element={<AboutUsPage />} />
-                <Route path="products" element={<Products />} />
-                <Route path="signin" element={<SignInPage />} />
-                <Route path="adminpanel" element={<RequireAuth isLogged={true} children={<AdminPanelPage />} />} />
-                <Route path="*" element={<ErrorPage />} />
-                <Route path="contactUs" element={<ContactUs /> } />
-                <Route path="login" element={<Login /> } />
-            </Routes>
-            <Footer2 />
-            <WhatsAppButton />
-        </Router>
-    );
-};
+function AppRouter() {
+  return (
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="" element={<HomePage />} />
+        <Route path="aboutUs" element={<AboutUsPage />} />
+        <Route path="products" element={<Products />} />
+        <Route path="signin" element={<SignInPage />} />
+        <Route
+          path="adminpanel"
+          element={
+            <RequireAuth>
+              <AdminPanelPage />
+            </RequireAuth>
+          }
+        />
+        <Route path="contactUs" element={<ContactUs />} />
+        <Route path="login" element={<Login />} />
+        <Route path="*" element={<ErrorPage />} />
+      </Routes>
+      <Footer2 />
+      <WhatsAppButton />
+    </Router>
+  );
+}
 
 export default AppRouter;

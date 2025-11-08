@@ -1,50 +1,54 @@
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import "../Styles/Login.css";
-import { BsFillArrowUpRightSquareFill } from "react-icons/bs";
-import { useState } from 'react';
+import { useState } from "react";
+import axios from "axios";
 
-function Login() {
-    const [datos, setDatos] = useState({
-        username: "",
-        password: ""
-    });
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
-    const handleInputChange = (e) => {
-        let { name, value } = e.target;
-        let newDatos = {...datos, [name]: value};
-        setDatos(newDatos);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("http://localhost:8000/api/auth/login", {
+        email,
+        password,
+      }, { withCredentials: true });
+      setMessage("✅ Login exitoso");
+      localStorage.setItem("token", res.data.token);
+    } catch (err) {
+      setMessage("❌ Credenciales incorrectas");
     }
+  };
 
-    const handleSubmit = async(e) =>{
-        e.preventDefault();
-        if(!e.target.checkValidity()){
-            console.log("no enviar");
-        }else {
-            let res = await axios.post("http://localhost:8000/login", datos);
-            console.log("¡Ingreso exitoso!");
-        }
-    };
-   
-    return (
-        <form onSubmit={handleSubmit}>
-            <label >Username</label>
-            <input type="text" name="username" id="username" onChange={handleInputChange} value={datos.username} />
-
-            <label >Password</label>
-            <input type="password" name="password" id="password" onChange={handleInputChange} value={datos.password}/>
-            
-            <div>
-            <button
-                    type="submit"
-                    className="btn btn-success">Login</button>
-                <hr/>
-                    <Link className="register" to={"/signin"} >I'm new!<BsFillArrowUpRightSquareFill /></Link>
-            </div>
-        </form>
-
-        
-    )
+  return (
+    <div className="container mt-5" style={{ maxWidth: "400px" }}>
+      <h2 className="text-center mb-4">Iniciar Sesión</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label>Email</label>
+          <input
+            type="email"
+            className="form-control"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label>Contraseña</label>
+          <input
+            type="password"
+            className="form-control"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button className="btn btn-primary w-100" type="submit">
+          Entrar
+        </button>
+      </form>
+      {message && <p className="mt-3 text-center">{message}</p>}
+    </div>
+  );
 }
-
-export default Login;
