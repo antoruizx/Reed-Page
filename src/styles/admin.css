@@ -1,0 +1,351 @@
+/* ========================= PANEL ADMIN ========================= */
+.admin {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: calc(100svh - var(--header-h));
+  background: var(--fog);
+}
+.admin-nav {
+  background: #fff;
+  border-right: 1px solid var(--line);
+  padding: 28px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin-nav-title {
+  font-weight: 900;
+  font-size: 1.4rem;
+  font-variation-settings: "wdth" 62;
+  padding: 0 12px 16px;
+}
+.admin-nav a {
+  padding: 10px 12px;
+  border-radius: var(--r-field);
+  text-decoration: none;
+  font-weight: 600;
+}
+.admin-nav a:hover {
+  background: var(--fog);
+}
+.admin-nav a.active {
+  background: var(--ink);
+  color: #fff;
+}
+.admin-nav .admin-nav-back {
+  margin-top: auto;
+  color: var(--ink-soft);
+}
+.admin-nav .admin-nav-back.active {
+  background: none;
+  color: var(--ink-soft);
+}
+.admin-main {
+  padding: clamp(20px, 4vw, 40px);
+  min-width: 0;
+  display: grid;
+  gap: 24px;
+  align-content: start;
+}
+.admin-title {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+.admin-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.admin-card {
+  background: #fff;
+  border-radius: var(--r-img);
+  padding: 24px;
+}
+.admin-card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
+.admin-callout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  background: var(--gum);
+  color: #fff;
+  border-radius: var(--r-img);
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+.admin-callout span {
+  text-decoration: underline;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 0;
+}
+.stats div {
+  background: #fff;
+  border-radius: var(--r-img);
+  padding: 20px;
+}
+.stats dt {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.stats dd {
+  margin: 6px 0 0;
+  font-size: 2rem;
+  font-weight: 800;
+  font-variation-settings: "wdth" 75;
+  font-variant-numeric: tabular-nums;
+}
+.low-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.low-list li {
+  display: grid;
+}
+.low-list a {
+  font-weight: 700;
+}
+
+.admin-search {
+  max-width: 340px;
+  min-height: 42px;
+}
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: var(--r-img);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.admin-table th,
+.admin-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.admin-table thead th {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.admin-table .num {
+  font-variant-numeric: tabular-nums;
+}
+.text-error {
+  color: var(--error);
+  font-weight: 700;
+}
+.admin-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.admin-product-cell img {
+  width: 40px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.row-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* Formulario de producto */
+.product-form {
+  display: grid;
+  gap: 24px;
+}
+.product-form-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.image-previews img {
+  width: 64px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--fog);
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gum);
+}
+.colors-editor {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+.color-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 180px auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+.color-row input[type="color"] {
+  width: 48px;
+  height: 48px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-field);
+  padding: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+.sizes-editor {
+  border: 0;
+  padding: 0;
+  margin: 24px 0;
+}
+.sizes-editor legend {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.stock-table {
+  min-width: 480px;
+}
+.stock-table caption {
+  text-align: left;
+  padding: 0 0 8px;
+}
+.stock-table th[scope="row"] {
+  white-space: nowrap;
+}
+.stock-table th[scope="row"] .swatch {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+.stock-input {
+  width: 76px;
+  min-height: 40px;
+  padding: 6px 10px;
+  text-align: center;
+}
+
+/* Pedidos */
+.admin-orders {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.admin-order {
+  background: #fff;
+  border-radius: var(--r-img);
+  overflow: hidden;
+}
+.admin-order-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 70px 1fr auto 120px;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.admin-order-row:hover {
+  background: #fafbfc;
+}
+.admin-order-row .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.admin-order-detail {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 24px;
+  padding: 4px 20px 24px;
+  border-top: 1px solid var(--line);
+}
+.admin-order-detail h3 {
+  font-size: 1.1rem;
+  margin: 16px 0 6px;
+}
+.admin-order-detail ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.admin-order-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media (max-width: 1000px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .product-form-grid,
+  .admin-order-detail {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .admin {
+    grid-template-columns: 1fr;
+  }
+  .admin-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 12px;
+  }
+  .admin-nav-title {
+    display: none;
+  }
+  .admin-nav .admin-nav-back {
+    margin-top: 0;
+    margin-left: auto;
+  }
+  .admin-order-row {
+    grid-template-columns: auto 1fr;
+  }
+  .color-row {
+    grid-template-columns: 48px 1fr;
+  }
+}

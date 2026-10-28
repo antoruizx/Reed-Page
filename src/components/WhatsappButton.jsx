@@ -1,21 +1,22 @@
-import React from "react";
-import { BsWhatsapp } from "react-icons/bs";
-import "../Styles/WhatsAppButton.css";
+import Icon from "./Icon";
 
-const WhatsAppButton = () => {
-  const phoneNumber = "+5493814988682"; 
-  const message = "Hola! Quisiera más información 😊";
+const PHONE = "5493814988682";
+export const WHATSAPP_URL = `https://wa.me/${PHONE}?text=${encodeURIComponent(
+  "¡Hola Reed! Tengo una consulta 🙂"
+)}`;
 
+export const whatsappFor = (text) => `https://wa.me/${PHONE}?text=${encodeURIComponent(text)}`;
+
+export default function WhatsappButton() {
   return (
     <a
-      href={`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`}
-      className="whatsapp-fab"
+      href={WHATSAPP_URL}
+      className="wa-fab"
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noreferrer"
+      aria-label="Escribinos por WhatsApp"
     >
-      <BsWhatsapp size={28} />
+      <Icon name="whatsapp" size={28} />
     </a>
   );
-};
-
-export default WhatsAppButton;
+}
