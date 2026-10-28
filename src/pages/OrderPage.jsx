@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import Icon from "../components/Icon";
+import { EntrySummary, MiniTee } from "../components/CustomItem";
 import { whatsappFor } from "../components/WhatsappButton";
 import { api } from "../lib/api";
 import { money, STATUS_LABELS, formatDate } from "../lib/format";
@@ -121,6 +122,21 @@ export default function OrderPage() {
                   </span>
                 </div>
                 <span className="cart-line-price">{money(i.price * i.quantity)}</span>
+              </li>
+            ))}
+            {(order.customItems || []).map((c, idx) => (
+              <li key={`c${idx}`} className="cart-line">
+                <span className="cart-line-img cart-line-tee">
+                  <MiniTee config={c.entries[0].config} />
+                </span>
+                <div className="cart-line-info">
+                  <span className="cart-line-name">{c.title}</span>
+                  {c.entries.map((e, j) => (
+                    <EntrySummary key={j} entry={e} />
+                  ))}
+                  {c.discountPct > 0 && <span className="cart-line-meta">Con {c.discountPct}% de descuento</span>}
+                </div>
+                <span className="cart-line-price">{money(c.total)}</span>
               </li>
             ))}
           </ul>

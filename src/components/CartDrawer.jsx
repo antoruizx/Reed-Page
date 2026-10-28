@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router";
 import Icon from "./Icon";
-import { useCart } from "../context/CartContext";
+import { isCustomLine, useCart } from "../context/CartContext";
+import { EntrySummary, MiniTee, entriesOf } from "./CustomItem";
 import { useShipping } from "../lib/useShipping";
 import { money } from "../lib/format";
 
@@ -24,11 +25,50 @@ export function QuantityStepper({ value, max, onChange, label }) {
   );
 }
 
+function CustomCartLine({ line, editable, onRemove }) {
+  const { setOpen } = useCart();
+  const entries = entriesOf(line);
+  return (
+    <li className="cart-line">
+      <span className="cart-line-img cart-line-tee">
+        <MiniTee config={entries[0].config} />
+      </span>
+      <div className="cart-line-info">
+        <span className="cart-line-name">{line.title}</span>
+        {line.type === "pack" && (
+          <span className="cart-line-meta">
+            {line.units} remeras, {entries.length} {entries.length === 1 ? "diseño" : "diseños"}
+          </span>
+        )}
+        {entries.map((e, idx) => (
+          <EntrySummary key={idx} entry={e} />
+        ))}
+        {editable && (
+          <div className="cart-line-actions">
+            {line.type === "custom" && (
+              <Link to={`/disena?editar=${line.id}`} className="btn btn-ghost btn-sm" onClick={() => setOpen(false)}>
+                Editar
+              </Link>
+            )}
+            <button className="icon-btn" onClick={onRemove} aria-label={`Quitar ${line.title}`}>
+              <Icon name="trash" size={18} />
+            </button>
+          </div>
+        )}
+      </div>
+      <span className="cart-line-price">{money(line.total)}</span>
+    </li>
+  );
+}
+
 export function CartLines({ editable = true }) {
   const { items, setQuantity, remove, lineId } = useCart();
   return (
     <ul className="cart-lines">
-      {items.map((i) => (
+      {items.map((i) =>
+        isCustomLine(i) ? (
+          <CustomCartLine key={lineId(i)} line={i} editable={editable} onRemove={() => remove(i)} />
+        ) : (
         <li key={lineId(i)} className="cart-line">
           <Link to={`/producto/${i.slug}`} className="cart-line-img">
             <img src={i.image} alt="" width="80" height="100" />
@@ -57,7 +97,8 @@ export function CartLines({ editable = true }) {
           </div>
           <span className="cart-line-price">{money(i.price * i.quantity)}</span>
         </li>
-      ))}
+        )
+      )}
     </ul>
   );
 }

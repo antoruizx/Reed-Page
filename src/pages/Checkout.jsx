@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { CartLines } from "../components/CartDrawer";
 import Icon from "../components/Icon";
-import { useCart } from "../context/CartContext";
+import { isCustomLine, useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useShipping } from "../lib/useShipping";
 import { api } from "../lib/api";
@@ -100,7 +100,12 @@ export default function Checkout() {
       const { order, accessKey, checkoutUrl } = await api("/orders", {
         method: "POST",
         body: {
-          items: items.map((i) => ({ productId: i.productId, color: i.color, size: i.size, quantity: i.quantity })),
+          items: items
+            .filter((i) => !isCustomLine(i))
+            .map((i) => ({ productId: i.productId, color: i.color, size: i.size, quantity: i.quantity })),
+          custom: items
+            .filter(isCustomLine)
+            .map((i) => (i.type === "pack" ? { type: "pack", packId: i.packId, items: i.items } : { type: "custom", config: i.config, sizes: i.sizes })),
           customer: { name: form.name, email: form.email, phone: form.phone },
           shipping: {
             method: form.method,

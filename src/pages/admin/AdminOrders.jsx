@@ -4,6 +4,7 @@ import { useFetch } from "../../lib/useFetch";
 import { api } from "../../lib/api";
 import { money, STATUS_LABELS, formatDate } from "../../lib/format";
 import { usePageTitle } from "../../components/usePageTitle";
+import { ProductionSheet } from "../../components/CustomItem";
 
 const FILTERS = [
   ["", "Todos"],
@@ -105,6 +106,17 @@ export default function AdminOrders() {
                           </li>
                         ))}
                       </ul>
+                      {(o.customItems || []).map((c, idx) => (
+                        <div key={idx} className="production-item">
+                          <h4>
+                            {c.title}: {c.quantity} remeras, {money(c.total)}
+                            {c.discountPct > 0 && ` (−${c.discountPct}%)`}
+                          </h4>
+                          {c.entries.map((e, j) => (
+                            <ProductionSheet key={j} entry={e} />
+                          ))}
+                        </div>
+                      ))}
                       <p className="hint">
                         Subtotal {money(o.subtotal)}, envío {money(o.shippingCost)}
                       </p>

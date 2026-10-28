@@ -2,6 +2,7 @@
 import mongoose from "mongoose";
 import { connectDB } from "./db.js";
 import Product, { slugify } from "./models/Product.js";
+import Design from "./models/Design.js";
 
 const TEE = [
   "Jersey peinado 24/1, 100% algodón",
@@ -147,4 +148,30 @@ for (const p of products) {
   });
 }
 console.log(`✅ ${products.length} productos cargados`);
+
+// Diseños del catálogo para el diseñador de remeras (originales de Reed)
+const designs = [
+  ["Sol retro", "sol-retro.svg", 400, 400, ["retro", "verano"]],
+  ["Cerros", "cerros.svg", 400, 320, ["paisaje", "tucumán"]],
+  ["Ondas", "ondas.svg", 380, 260, ["minimal"]],
+  ["Rayo", "rayo.svg", 300, 400, ["energía"]],
+  ["Margarita", "margarita.svg", 400, 400, ["flores", "y2k"]],
+  ["Ojo místico", "ojo.svg", 400, 300, ["místico"]],
+  ["Corazón", "corazon.svg", 400, 360, ["amor"]],
+  ["Carita damero", "damero.svg", 400, 400, ["y2k", "skate"]],
+  ["Logo Reed", "../brand/reed-r-ink.png", 458, 391, ["reed"]],
+];
+await Design.deleteMany({ kind: "catalog", url: { $exists: true } });
+await Design.insertMany(
+  designs.map(([name, file, width, height, tags], i) => ({
+    kind: "catalog",
+    name,
+    url: `/img/designs/${file}`.replace("/designs/../", "/"),
+    width,
+    height,
+    tags,
+    sort: i,
+  }))
+);
+console.log(`✅ ${designs.length} diseños de catálogo cargados`);
 await mongoose.disconnect();

@@ -405,3 +405,7 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+.main-nav .nav-accent:not(.active) {
+  color: var(--gum);
+}

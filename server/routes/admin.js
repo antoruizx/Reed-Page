@@ -2,6 +2,8 @@ import { Router } from "express";
 import Product, { slugify } from "../models/Product.js";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
+import Design from "../models/Design.js";
+import { getSettings, saveSettings } from "../models/Settings.js";
 import { ORDER_STATUSES } from "../config.js";
 import { requireAdmin, requireAuth } from "../middleware/auth.js";
 import { badRequest, notFound } from "../errors.js";
@@ -134,6 +136,88 @@ router.patch("/orders/:id", async (req, res) => {
   const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true, runValidators: true });
   if (!order) throw notFound();
   res.json({ order });
+});
+
+// ---------- Personalizadas: precios, modelos y packs ----------
+router.get("/settings", async (_req, res) => {
+  res.json({ settings: await getSettings() });
+});
+
+router.put("/settings", async (req, res) => {
+  const d = req.body?.settings;
+  const num = (v) => Math.max(0, Number(v) || 0);
+  if (!d || !Array.isArray(d.garments) || !Array.isArray(d.printSizes) || !Array.isArray(d.tiers) || !Array.isArray(d.packs)) {
+    throw badRequest("Faltan datos de la configuración");
+  }
+  const settings = {
+    productionDays: String(d.productionDays || "").slice(0, 60),
+    bigSizeSurcharge: num(d.bigSizeSurcharge),
+    garments: d.garments.map((g) => ({
+      id: String(g.id),
+      name: String(g.name || "").trim(),
+      description: String(g.description || ""),
+      basePrice: num(g.basePrice),
+      sizes: (g.sizes || []).map(String),
+      printArea: { w: num(g.printArea?.w) || 30, h: num(g.printArea?.h) || 40 },
+      active: g.active !== false,
+    })),
+    colors: (d.colors || [])
+      .filter((c) => c.name && /^#[0-9a-fA-F]{6}$/.test(c.hex))
+      .map((c) => ({ name: String(c.name).trim(), hex: c.hex })),
+    printSizes: d.printSizes.map((p) => ({
+      id: String(p.id),
+      name: String(p.name),
+      maxW: num(p.maxW),
+      maxH: num(p.maxH),
+      price: num(p.price),
+    })),
+    tiers: d.tiers
+      .map((t) => ({ min: Math.floor(num(t.min)), pct: Math.min(90, num(t.pct)) }))
+      .filter((t) => t.min > 1 && t.pct > 0)
+      .sort((a, b) => a.min - b.min),
+    packs: d.packs.map((p) => ({
+      id: String(p.id),
+      name: String(p.name || "").trim(),
+      units: Math.max(1, Math.floor(num(p.units))),
+      maxDesigns: Math.max(1, Math.floor(num(p.maxDesigns))),
+      price: num(p.price),
+      perks: (p.perks || []).map(String).filter(Boolean),
+      active: p.active !== false,
+    })),
+    packGarments: (d.packGarments || []).map(String),
+  };
+  if (!settings.garments.some((g) => g.active)) throw badRequest("Dejá al menos un modelo de remera activo");
+  if (!settings.colors.length) throw badRequest("Dejá al menos un color");
+  res.json({ settings: await saveSettings(settings) });
+});
+
+// ---------- Diseños del catálogo ----------
+router.get("/designs", async (_req, res) => {
+  const designs = await Design.find({ kind: "catalog" }).sort({ sort: 1, createdAt: 1 });
+  res.json({ designs });
+});
+
+// Pasar un diseño subido al catálogo de Reed (primero se sube con POST /api/designs)
+router.post("/designs/:id/catalog", async (req, res) => {
+  const design = await Design.findById(req.params.id);
+  if (!design) throw notFound();
+  design.kind = "catalog";
+  design.name = String(req.body?.name || design.name).slice(0, 60);
+  design.tags = (req.body?.tags || []).map(String);
+  design.active = true;
+  design.sort = (await Design.countDocuments({ kind: "catalog" })) + 1;
+  await design.save();
+  res.json({ design });
+});
+
+router.patch("/designs/:id", async (req, res) => {
+  const design = await Design.findOne({ _id: req.params.id, kind: "catalog" });
+  if (!design) throw notFound();
+  if (req.body?.name !== undefined) design.name = String(req.body.name).slice(0, 60);
+  if (req.body?.active !== undefined) design.active = Boolean(req.body.active);
+  if (req.body?.sort !== undefined) design.sort = Number(req.body.sort) || 0;
+  await design.save();
+  res.json({ design });
 });
 
 export default router;

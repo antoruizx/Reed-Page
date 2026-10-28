@@ -3,7 +3,12 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 const CartContext = createContext(null);
 const KEY = "reed.cart";
 
-const lineId = (i) => `${i.productId}|${i.color}|${i.size}`;
+// Productos de la tienda: una línea por producto + color + talle.
+// Personalizadas y packs: cada una es su propia línea, con un id.
+const lineId = (i) => (i.type ? i.id : `${i.productId}|${i.color}|${i.size}`);
+export const isCustomLine = (i) => i.type === "custom" || i.type === "pack";
+export const lineTotal = (i) => (isCustomLine(i) ? i.total : i.price * i.quantity);
+export const lineUnits = (i) => (isCustomLine(i) ? i.units : i.quantity);
 
 function load() {
   try {
@@ -13,6 +18,9 @@ function load() {
     return [];
   }
 }
+
+const newId = () =>
+  globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState(load);
@@ -43,6 +51,17 @@ export function CartProvider({ children }) {
     setOpen(true);
   }, []);
 
+  // Personalizada o pack. Si trae id de una línea existente, la reemplaza (edición).
+  const addCustom = useCallback((line) => {
+    const withId = { ...line, id: line.id || newId() };
+    setItems((prev) =>
+      prev.some((i) => i.id === withId.id)
+        ? prev.map((i) => (i.id === withId.id ? withId : i))
+        : [...prev, withId]
+    );
+    setOpen(true);
+  }, []);
+
   const setQuantity = useCallback((item, quantity) => {
     setItems((prev) =>
       prev
@@ -51,7 +70,7 @@ export function CartProvider({ children }) {
             ? { ...i, quantity: Math.max(0, Math.min(quantity, i.maxStock ?? 99)) }
             : i
         )
-        .filter((i) => i.quantity > 0)
+        .filter((i) => isCustomLine(i) || i.quantity > 0)
     );
   }, []);
 
@@ -62,10 +81,10 @@ export function CartProvider({ children }) {
   const clear = useCallback(() => setItems([]), []);
 
   const value = useMemo(() => {
-    const count = items.reduce((s, i) => s + i.quantity, 0);
-    const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-    return { items, count, subtotal, add, setQuantity, remove, clear, open, setOpen, lineId };
-  }, [items, add, setQuantity, remove, clear, open]);
+    const count = items.reduce((s, i) => s + lineUnits(i), 0);
+    const subtotal = items.reduce((s, i) => s + lineTotal(i), 0);
+    return { items, count, subtotal, add, addCustom, setQuantity, remove, clear, open, setOpen, lineId };
+  }, [items, add, addCustom, setQuantity, remove, clear, open]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

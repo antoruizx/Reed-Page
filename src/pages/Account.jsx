@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { useFetch } from "../lib/useFetch";
+import { MiniTee } from "../components/CustomItem";
 import { money, STATUS_LABELS, formatDate } from "../lib/format";
 import { usePageTitle } from "../components/usePageTitle";
 
@@ -57,11 +58,17 @@ export default function Account() {
                     {o.items.slice(0, 3).map((i) => (
                       <img key={`${i.product}${i.color}${i.size}`} src={i.image} alt="" width="48" height="60" />
                     ))}
+                    {(o.customItems || []).slice(0, 2).map((c, idx) => (
+                      <span key={idx} className="order-row-tee">
+                        <MiniTee config={c.entries[0].config} />
+                      </span>
+                    ))}
                   </span>
                   <span className="order-row-main">
                     <strong>Pedido #{o.number}</strong>
                     <span className="hint">
-                      {formatDate(o.createdAt)}, {o.items.reduce((s, i) => s + i.quantity, 0)} prendas
+                      {formatDate(o.createdAt)},{" "}
+                      {o.items.reduce((s, i) => s + i.quantity, 0) + (o.customItems || []).reduce((s, c) => s + c.quantity, 0)} prendas
                     </span>
                   </span>
                   <span className={`status status-${o.status}`}>{STATUS_LABELS[o.status]}</span>

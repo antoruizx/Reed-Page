@@ -7,6 +7,7 @@ import App from "./App";
 import "./styles/global.css";
 import "./styles/layout.css";
 import "./styles/pages.css";
+import "./styles/designer.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

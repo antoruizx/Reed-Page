@@ -4,6 +4,7 @@ import Product from "../models/Product.js";
 import { config } from "../config.js";
 import { optionalAuth, requireAuth } from "../middleware/auth.js";
 import { createPreference, syncPayment } from "../lib/payments.js";
+import { buildCustomItems } from "../lib/custom.js";
 import { badRequest, notFound } from "../errors.js";
 
 const router = Router();
@@ -19,8 +20,10 @@ router.get("/shipping", (_req, res) => {
 
 // Crea el pedido y devuelve el link de pago de Mercado Pago
 router.post("/", optionalAuth, async (req, res) => {
-  const { items = [], customer = {}, shipping = {} } = req.body ?? {};
-  if (!Array.isArray(items) || items.length === 0) throw badRequest("Tu carrito está vacío");
+  const { items = [], custom = [], customer = {}, shipping = {} } = req.body ?? {};
+  if (!Array.isArray(items) || !Array.isArray(custom) || items.length + custom.length === 0) {
+    throw badRequest("Tu carrito está vacío");
+  }
   if (items.length > 30) throw badRequest("Demasiados productos en un solo pedido");
 
   // Los precios SIEMPRE salen de la base, nunca del navegador
@@ -67,7 +70,8 @@ router.post("/", optionalAuth, async (req, res) => {
     }
   }
 
-  const subtotal = orderItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  const { customItems, subtotal: customSubtotal } = await buildCustomItems(custom);
+  const subtotal = orderItems.reduce((s, i) => s + i.price * i.quantity, 0) + customSubtotal;
   const shippingCost = shippingCostFor(shipping.method, subtotal);
 
   const order = new Order({
@@ -86,6 +90,7 @@ router.post("/", optionalAuth, async (req, res) => {
       notes: shipping.notes,
     },
     items: orderItems,
+    customItems,
     subtotal,
     shippingCost,
     total: subtotal + shippingCost,

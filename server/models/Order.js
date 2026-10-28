@@ -16,6 +16,30 @@ const itemSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// Remera personalizada o pack: cada "entry" es un diseño con su reparto de talles
+const customEntrySchema = new mongoose.Schema(
+  {
+    config: { type: mongoose.Schema.Types.Mixed, required: true }, // modelo, color, diseños y posición
+    sizes: { type: mongoose.Schema.Types.Mixed, required: true }, // { M: 3, L: 2 }
+    units: { type: Number, required: true },
+  },
+  { _id: false }
+);
+
+const customItemSchema = new mongoose.Schema(
+  {
+    kind: { type: String, enum: ["custom", "pack"], required: true },
+    title: { type: String, required: true },
+    packId: String,
+    entries: { type: [customEntrySchema], required: true },
+    quantity: { type: Number, required: true },
+    subtotal: { type: Number, required: true },
+    discountPct: { type: Number, default: 0 },
+    total: { type: Number, required: true },
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     number: { type: Number, unique: true }, // número corto y legible: #1001, #1002...
@@ -35,7 +59,8 @@ const orderSchema = new mongoose.Schema(
       zip: String,
       notes: String,
     },
-    items: { type: [itemSchema], validate: [(v) => v.length > 0, "El carrito está vacío"] },
+    items: { type: [itemSchema], default: [] },
+    customItems: { type: [customItemSchema], default: [] },
     subtotal: { type: Number, required: true },
     shippingCost: { type: Number, required: true, default: 0 },
     total: { type: Number, required: true },
@@ -57,6 +82,9 @@ const counterSchema = new mongoose.Schema({ _id: String, seq: Number });
 const Counter = mongoose.models.Counter || mongoose.model("Counter", counterSchema);
 
 orderSchema.pre("validate", async function () {
+  if (this.items.length + this.customItems.length === 0) {
+    this.invalidate("items", "El carrito está vacío");
+  }
   if (this.number) return;
   const c = await Counter.findByIdAndUpdate(
     "order",

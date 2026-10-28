@@ -16,6 +16,8 @@ import Account from "./pages/Account";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import Designer from "./pages/Designer";
+import Resell from "./pages/Resell";
 
 // El panel solo lo descargan las admins
 const Admin = lazy(() => import("./pages/admin/Admin"));
@@ -37,6 +39,8 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/tienda" element={<Shop />} />
             <Route path="/producto/:slug" element={<ProductPage />} />
+            <Route path="/disena" element={<Designer />} />
+            <Route path="/revende" element={<Resell />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/pedido/:id" element={<OrderPage />} />
             <Route path="/ingresar" element={<Login />} />
@@ -65,7 +69,7 @@ export default function App() {
       </main>
       {!inAdmin && <Footer />}
       <CartDrawer />
-      {!inAdmin && <WhatsappButton />}
+      {!inAdmin && pathname !== "/disena" && <WhatsappButton />}
     </>
   );
 }

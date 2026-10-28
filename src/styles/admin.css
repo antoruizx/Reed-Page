@@ -349,3 +349,126 @@
     grid-template-columns: 48px 1fr;
   }
 }
+
+/* Personalizadas */
+.admin-custom {
+  display: grid;
+  gap: 24px;
+}
+.garments-admin {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 16px;
+}
+.garment-admin {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+  padding: 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-img);
+}
+.garment-admin.is-off {
+  opacity: 0.6;
+}
+.row-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.color-row-simple {
+  grid-template-columns: 48px 1fr auto;
+  max-width: 480px;
+}
+.tiers-editor {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+.tier-row {
+  display: grid;
+  grid-template-columns: 180px 180px auto;
+  gap: 12px;
+  align-items: end;
+}
+.packs-admin {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.pack-admin {
+  padding: 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-img);
+}
+.file-btn {
+  position: relative;
+  overflow: hidden;
+}
+.file-btn input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.design-grid-admin {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  margin-top: 12px;
+}
+.design-grid-admin .design-thumb {
+  cursor: default;
+}
+.design-grid-admin .input {
+  min-height: 36px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+
+/* Ficha de producción en pedidos */
+.production-item {
+  margin-top: 16px;
+}
+.production-item h4 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+.production {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 16px;
+  padding: 12px;
+  background: var(--fog);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  font-size: 0.92rem;
+}
+.production-tees {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.production-tees figure {
+  margin: 0;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+.production ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+@media (max-width: 760px) {
+  .garments-admin {
+    grid-template-columns: 1fr;
+  }
+  .garment-admin,
+  .production {
+    grid-template-columns: 1fr;
+  }
+  .garment-admin .tee-mockup {
+    max-width: 120px;
+  }
+  .tier-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}

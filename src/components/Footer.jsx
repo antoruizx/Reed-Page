@@ -17,6 +17,8 @@ export default function Footer() {
           <Link to="/tienda?categoria=buzos">Buzos</Link>
           <Link to="/tienda?categoria=accesorios">Accesorios</Link>
           <Link to="/tienda">Ver todo</Link>
+          <Link to="/disena">Diseñá tu remera</Link>
+          <Link to="/revende">Revendé con Reed</Link>
         </nav>
 
         <nav aria-label="Ayuda">

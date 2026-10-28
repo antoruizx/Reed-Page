@@ -1,11 +1,18 @@
 import { Link } from "react-router";
 import ProductCard, { ProductGridSkeleton } from "../components/ProductCard";
 import Icon from "../components/Icon";
-import { whatsappFor } from "../components/WhatsappButton";
+import TeeMockup from "../components/TeeMockup";
+import { DEFAULT_SETTINGS } from "../../shared/pricing.js";
 import { useFetch } from "../lib/useFetch";
 import { useShipping } from "../lib/useShipping";
 import { usePageTitle } from "../components/usePageTitle";
 import { money, INSTALLMENTS } from "../lib/format";
+
+const PROMO = [
+  { garment: "boxy", color: "#E48B9C", design: "margarita", aspect: 1, w: 20 },
+  { garment: "clasica", color: "#1C1B1F", design: "sol-retro", aspect: 1, w: 22 },
+  { garment: "larga", color: "#A9CFEA", design: "rayo", aspect: 1.33, w: 16 },
+];
 
 const categories = [
   { slug: "remeras", label: "Remeras", img: "/img/products/remera-oversize-coral.jpg", note: "Algodón peinado, calce oversize" },
@@ -106,24 +113,35 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="wholesale">
-        <div className="wrap wholesale-inner">
+      <section className="design-promo">
+        <div className="wrap design-promo-inner">
           <div>
-            <h2>Hacemos tu remera.</h2>
+            <h2>Diseñá tu remera.</h2>
             <p>
-              ¿Tenés una marca, un equipo o un evento? Estampamos remeras y buzos con tu diseño, por
-              cantidad y con precio mayorista. Contanos qué necesitás y te pasamos presupuesto.
+              Elegí el modelo oversize, el color y tu diseño: uno nuestro, el tuyo o uno que crees con
+              IA. Lo ves puesto antes de pagar y el precio baja si llevás varias.
             </p>
-            <a
-              className="btn btn-primary"
-              href={whatsappFor("¡Hola Reed! Quiero pedir un presupuesto de prendas personalizadas.")}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Icon name="whatsapp" size={20} /> Pedir presupuesto
-            </a>
+            <div className="hero-ctas">
+              <Link to="/disena" className="btn btn-primary">
+                Empezar a diseñar
+              </Link>
+              <Link to="/revende" className="btn btn-outline-light">
+                Packs para revender
+              </Link>
+            </div>
           </div>
-          <img src="/img/products/remera-alas-blanca.jpg" alt="Remera blanca con estampa grande en la espalda" loading="lazy" width="560" height="430" />
+          <div className="promo-tees" aria-hidden="true">
+            {PROMO.map((t, i) => (
+              <TeeMockup
+                key={t.design}
+                garment={DEFAULT_SETTINGS.garments.find((g) => g.id === t.garment)}
+                color={t.color}
+                placement={{ src: `/img/designs/${t.design}.svg`, aspect: t.aspect, widthCm: t.w, x: 0.5, y: 0.32 }}
+                className={`promo-tee promo-tee-${i}`}
+                label=""
+              />
+            ))}
+          </div>
         </div>
       </section>
     </>

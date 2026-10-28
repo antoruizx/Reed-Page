@@ -23,15 +23,22 @@ export function orderReturnUrl(order, accessKey) {
 // Crea la preferencia de Checkout Pro y devuelve el link de pago
 export async function createPreference(order, accessKey) {
   const back = orderReturnUrl(order, accessKey);
+  const customLines = (order.customItems || []).map((c, idx) => ({
+    id: `custom-${idx}`,
+    title: `${c.title} (${c.quantity} ${c.quantity === 1 ? "remera" : "remeras"})`,
+    quantity: 1,
+    unit_price: c.total,
+    currency_id: "ARS",
+  }));
   const body = {
-    items: order.items.map((i) => ({
+    items: [...order.items.map((i) => ({
       id: String(i.product),
       title: `${i.name} · ${i.color} · ${i.size}`,
       quantity: i.quantity,
       unit_price: i.price,
       currency_id: "ARS",
       picture_url: i.image?.startsWith("http") ? i.image : `${config.siteUrl}${i.image}`,
-    })),
+    })), ...customLines],
     payer: { name: order.customer.name, email: order.customer.email },
     external_reference: order._id.toString(),
     back_urls: { success: back, failure: back, pending: back },

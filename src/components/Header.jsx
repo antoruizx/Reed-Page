@@ -5,10 +5,11 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 const links = [
-  { to: "/tienda", label: "Todo" },
+  { to: "/tienda", label: "Tienda" },
   { to: "/tienda?categoria=remeras", label: "Remeras" },
   { to: "/tienda?categoria=buzos", label: "Buzos" },
-  { to: "/tienda?categoria=accesorios", label: "Accesorios" },
+  { to: "/disena", label: "Diseñá la tuya", accent: true },
+  { to: "/revende", label: "Revendé" },
   { to: "/nosotros", label: "Nosotros" },
 ];
 
@@ -49,7 +50,7 @@ export default function Header() {
             <NavLink
               key={l.to}
               to={l.to}
-              className={() => (isActive(l.to) ? "active" : "")}
+              className={() => [isActive(l.to) ? "active" : "", l.accent ? "nav-accent" : ""].join(" ").trim()}
               end
             >
               {l.label}
