@@ -14,8 +14,17 @@ function cleanEnv(name) {
   return v || undefined;
 }
 
+// Un link de Mongo no lleva espacios: sacamos espacios, saltos de línea, caracteres
+// invisibles y cualquier cosa pegada antes de "mongodb"
+function cleanMongoUri() {
+  let v = (cleanEnv("MONGO_URI") || "").replace(/[\s​-‍﻿]/g, "");
+  const start = v.indexOf("mongodb");
+  if (start > 0) v = v.slice(start);
+  return v.replace(/["']+$/g, "") || undefined;
+}
+
 export const config = {
-  mongoUri: cleanEnv("MONGO_URI"),
+  mongoUri: cleanMongoUri(),
   jwtSecret: cleanEnv("JWT_SECRET"),
   adminEmail: (process.env.ADMIN_EMAIL || "").trim().toLowerCase(),
   siteUrl: (process.env.SITE_URL || "http://localhost:5173").replace(/\/$/, ""),
