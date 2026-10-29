@@ -33,7 +33,7 @@ app.get("/api/health", async (req, res) => {
     // El host (lo que va después del último "@") no es secreto y ayuda a encontrar errores de tipeo
     const host = (config.mongoUri || "").split("@").pop().split(/[/?]/)[0] || null;
     const scheme = (config.mongoUri || "").split("://")[0] || null;
-    res.status(503).json({ ok: false, mongoUri, db: err.name || "error", code: err.code ?? null, scheme, host });
+    res.status(503).json({ ok: false, mongoUri, db: err.name || "error", code: err.code ?? null, scheme, host, buscado: err.hostname ?? null });
   }
 });
 
