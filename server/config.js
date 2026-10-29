@@ -6,9 +6,17 @@ for (const key of required) {
   }
 }
 
+// Limpia errores típicos al pegar variables en Vercel: espacios, comillas o "NOMBRE=" delante
+function cleanEnv(name) {
+  let v = (process.env[name] || "").trim();
+  if (v.startsWith(`${name}=`)) v = v.slice(name.length + 1).trim();
+  v = v.replace(/^["']+|["']+$/g, "").trim();
+  return v || undefined;
+}
+
 export const config = {
-  mongoUri: process.env.MONGO_URI,
-  jwtSecret: process.env.JWT_SECRET,
+  mongoUri: cleanEnv("MONGO_URI"),
+  jwtSecret: cleanEnv("JWT_SECRET"),
   adminEmail: (process.env.ADMIN_EMAIL || "").trim().toLowerCase(),
   siteUrl: (process.env.SITE_URL || "http://localhost:5173").replace(/\/$/, ""),
   mp: {

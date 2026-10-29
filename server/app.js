@@ -1,5 +1,6 @@
 import express from "express";
 import { connectDB } from "./db.js";
+import { config } from "./config.js";
 import { errorHandler } from "./errors.js";
 import authRoutes from "./routes/auth.js";
 import productRoutes from "./routes/products.js";
@@ -24,7 +25,7 @@ app.use((req, res, next) =>
 // /api/health?db=1 también prueba la conexión a Mongo (sin mostrar datos sensibles)
 app.get("/api/health", async (req, res) => {
   if (!req.query.db) return res.json({ ok: true });
-  const mongoUri = process.env.MONGO_URI ? "cargada" : "falta";
+  const mongoUri = !config.mongoUri ? "falta" : /^mongodb(+srv)?:///.test(config.mongoUri) ? "cargada" : "formato inválido";
   try {
     await connectDB();
     res.json({ ok: true, mongoUri, db: "conectada" });
