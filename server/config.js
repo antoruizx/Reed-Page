@@ -20,7 +20,12 @@ function cleanMongoUri() {
   let v = (cleanEnv("MONGO_URI") || "").replace(/[\s​-‍﻿]/g, "");
   const start = v.indexOf("mongodb");
   if (start > 0) v = v.slice(start);
-  return v.replace(/["']+$/g, "") || undefined;
+  v = v.replace(/["']+$/g, "");
+  // Los clusters de Atlas (*.mongodb.net) solo se encuentran con "mongodb+srv://"
+  if (/^mongodb:\/\//.test(v) && /@[^/?]+\.mongodb\.net([/?]|$)/.test(v)) {
+    v = v.replace(/^mongodb:\/\//, "mongodb+srv://");
+  }
+  return v || undefined;
 }
 
 export const config = {
