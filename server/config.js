@@ -8,9 +8,9 @@ for (const key of required) {
 
 // Limpia errores típicos al pegar variables en Vercel: espacios, comillas o "NOMBRE=" delante
 function cleanEnv(name) {
-  let v = (process.env[name] || "").trim();
-  if (v.startsWith(`${name}=`)) v = v.slice(name.length + 1).trim();
-  v = v.replace(/^["']+|["']+$/g, "").trim();
+  const unquote = (s) => s.trim().replace(/^["']+|["']+$/g, "").trim();
+  let v = unquote(process.env[name] || "");
+  if (v.startsWith(`${name}=`)) v = unquote(v.slice(name.length + 1));
   return v || undefined;
 }
 

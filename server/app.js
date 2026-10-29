@@ -25,7 +25,7 @@ app.use((req, res, next) =>
 // /api/health?db=1 también prueba la conexión a Mongo (sin mostrar datos sensibles)
 app.get("/api/health", async (req, res) => {
   if (!req.query.db) return res.json({ ok: true });
-  const mongoUri = !config.mongoUri ? "falta" : /^mongodb(+srv)?:///.test(config.mongoUri) ? "cargada" : "formato inválido";
+  const mongoUri = !config.mongoUri ? "falta" : /^mongodb(\+srv)?:\/\//.test(config.mongoUri) ? "cargada" : "formato inválido";
   try {
     await connectDB();
     res.json({ ok: true, mongoUri, db: "conectada" });
