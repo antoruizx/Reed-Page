@@ -22,7 +22,9 @@ Lo distinto: un **diseñador de remeras** donde elegís modelo, color y diseño 
 - **Tienda:** filtros por categoría, talle, color y precio; búsqueda; los filtros viven en la URL para poder compartirlos.
 - **Producto:** galería, foto distinta por color, stock por combinación color + talle, aviso de "quedan pocas".
 - **Carrito lateral** guardado en el navegador, con barra de envío gratis.
-- **Checkout:** compra con o sin cuenta, envío a domicilio o retiro, cálculo de envío en el servidor.
+- **Checkout:** compra con o sin cuenta, envío a domicilio o retiro. El envío se calcula según la provincia (zonas con su precio y su mínimo para envío gratis), siempre en el servidor.
+- **Pago por transferencia con descuento:** opcional. El cliente ve el alias/CBU en su pedido y manda el comprobante por WhatsApp; la tienda confirma desde el panel y recién ahí se descuenta el stock.
+- **Seguimiento de envíos:** al despachar se carga el correo y el código, y el cliente lo ve en su pedido.
 - **Pagos seguros:** los precios siempre se recalculan en el servidor; el estado del pago se consulta a la API de Mercado Pago (nunca se confía en lo que manda el navegador) y el stock se descuenta una sola vez, al aprobarse el pago.
 - **Mi cuenta:** historial de pedidos con su estado.
 - **Diseñá tu remera** (`/disena`):
@@ -32,7 +34,7 @@ Lo distinto: un **diseñador de remeras** donde elegís modelo, color y diseño 
   - Subir tu imagen (con **quitar el fondo con IA**, en el navegador) o **crear un diseño desde un texto** con la API de imágenes de OpenAI.
   - Talles mezclados y descuento automático por cantidad (10%, 15%, 20%).
 - **Revendé con Reed** (`/revende`): packs Mini, Arranque y Marca con precio cerrado, armados desde el mismo diseñador.
-- **Panel admin:** precios de remeras, estampas, colores, descuentos y packs editables; catálogo de diseños; ficha de producción de cada personalizada (medidas, posición y archivo para descargar); resumen de ventas, alertas de poco stock, alta/edición de productos con grilla de stock, gestión de pedidos (preparando → enviado → entregado) y link directo al WhatsApp de cada cliente.
+- **Panel admin:** precios de remeras, estampas, colores, descuentos y packs editables; catálogo de diseños; ficha de producción de cada personalizada (medidas, posición y archivo para descargar); resumen de ventas, alertas de poco stock, alta/edición de productos con grilla de stock, gestión de pedidos (preparando → enviado → entregado) y link directo al WhatsApp de cada cliente. En **Envíos y pagos** se editan las zonas de envío, el retiro y los datos de transferencia.
 
 ## Estructura
 

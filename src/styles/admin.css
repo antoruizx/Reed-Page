@@ -470,3 +470,38 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ---------- Envíos y pagos ---------- */
+.zones-admin {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.zone-admin {
+  padding: 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-img);
+  justify-items: start;
+}
+.zone-head {
+  width: 100%;
+}
+.chip.is-other {
+  opacity: 0.45;
+}
+.zone-other-title {
+  margin-top: 1.75rem;
+  font-size: 1.15rem;
+}
+.tracking-form {
+  display: grid;
+  gap: 0.625rem;
+  justify-items: start;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.tracking-form .field,
+.tracking-form .form-row {
+  width: 100%;
+}

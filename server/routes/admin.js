@@ -3,8 +3,10 @@ import Product, { slugify } from "../models/Product.js";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Design from "../models/Design.js";
-import { getSettings, saveSettings } from "../models/Settings.js";
+import { getSettings, getStore, saveSettings, saveStore } from "../models/Settings.js";
 import { ORDER_STATUSES } from "../config.js";
+import { applyStock } from "../lib/payments.js";
+import { PROVINCES } from "../../shared/store.js";
 import { requireAdmin, requireAuth } from "../middleware/auth.js";
 import { badRequest, notFound } from "../errors.js";
 
@@ -14,7 +16,7 @@ router.use(requireAuth, requireAdmin);
 // ---------- Resumen ----------
 router.get("/stats", async (_req, res) => {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  const [sales, toPrepare, products, lowStock, customers] = await Promise.all([
+  const [sales, toPrepare, products, lowStock, customers, pendingTransfers] = await Promise.all([
     Order.aggregate([
       { $match: { status: { $in: ["pagada", "preparando", "enviada", "entregada"] }, createdAt: { $gte: since } } },
       { $group: { _id: null, total: { $sum: "$total" }, count: { $sum: 1 } } },
@@ -23,11 +25,13 @@ router.get("/stats", async (_req, res) => {
     Product.countDocuments({ active: true }),
     Product.find({ active: true, "variants.stock": { $lte: 2 } }, { name: 1, slug: 1, variants: 1 }).limit(10),
     User.countDocuments({ role: "customer" }),
+    Order.countDocuments({ status: "pendiente", "payment.provider": "transferencia" }),
   ]);
   res.json({
     salesLast30: sales[0]?.total ?? 0,
     ordersLast30: sales[0]?.count ?? 0,
     toPrepare,
+    pendingTransfers,
     products,
     customers,
     lowStock: lowStock.map((p) => ({
@@ -117,6 +121,7 @@ router.get("/orders", async (req, res) => {
   const { estado, q } = req.query;
   const filter = {};
   if (estado && ORDER_STATUSES.includes(estado)) filter.status = estado;
+  if (req.query.pago === "transferencia") filter["payment.provider"] = "transferencia";
   if (q) {
     const n = Number(String(q).replace("#", ""));
     const safe = String(q).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -130,12 +135,86 @@ router.get("/orders", async (req, res) => {
   res.json({ orders });
 });
 
+// Cambiar estado, cargar el seguimiento del envío o confirmar una transferencia
 router.patch("/orders/:id", async (req, res) => {
-  const { status } = req.body ?? {};
-  if (!ORDER_STATUSES.includes(status)) throw badRequest("Estado inválido");
-  const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true, runValidators: true });
+  const { status, tracking, confirmTransfer } = req.body ?? {};
+  const order = await Order.findById(req.params.id);
   if (!order) throw notFound();
+
+  if (confirmTransfer) {
+    if (order.payment?.provider !== "transferencia") throw badRequest("Este pedido no es por transferencia");
+    order.payment.status = "approved";
+    order.payment.method = "transferencia";
+    order.payment.paidAt = new Date();
+    if (["pendiente", "rechazada"].includes(order.status)) order.status = "pagada";
+  }
+
+  if (tracking) {
+    const clean = (v, max) => String(v ?? "").trim().slice(0, max);
+    const url = clean(tracking.url, 300);
+    if (url && !/^https?:\/\//i.test(url)) throw badRequest("El link de seguimiento tiene que empezar con https://");
+    order.shipping.carrier = clean(tracking.carrier, 30);
+    order.shipping.tracking = clean(tracking.code, 60);
+    order.shipping.trackingUrl = url;
+    // Cargar el código de un pedido listo lo marca como enviado
+    if (order.shipping.tracking && ["pagada", "preparando"].includes(order.status)) order.status = "enviada";
+  }
+
+  if (status !== undefined) {
+    if (!ORDER_STATUSES.includes(status)) throw badRequest("Estado inválido");
+    order.status = status;
+  }
+  if (order.status === "enviada" && !order.shipping.shippedAt) order.shipping.shippedAt = new Date();
+
+  await order.save();
+  if (confirmTransfer) await applyStock(order._id);
   res.json({ order });
+});
+
+// ---------- Envíos y pagos ----------
+router.get("/store", async (_req, res) => {
+  res.json({ store: await getStore() });
+});
+
+router.put("/store", async (req, res) => {
+  const d = req.body?.store;
+  if (!d?.shipping || !Array.isArray(d.shipping.zones)) throw badRequest("Faltan datos de envío");
+  const num = (v) => Math.max(0, Math.round(Number(v) || 0));
+  const text = (v, max) => String(v ?? "").trim().slice(0, max);
+
+  const used = new Set();
+  const zones = d.shipping.zones.map((z, i) => {
+    const provinces = (z.provinces || []).filter((p) => PROVINCES.includes(p) && !used.has(p));
+    provinces.forEach((p) => used.add(p));
+    return {
+      id: text(z.id, 40) || `zona-${i + 1}`,
+      name: text(z.name, 40) || `Zona ${i + 1}`,
+      provinces,
+      cost: num(z.cost),
+      freeFrom: num(z.freeFrom),
+    };
+  });
+
+  const cbu = String(d.transfer?.cbu ?? "").replace(/\D/g, "");
+  if (cbu && cbu.length !== 22) throw badRequest("El CBU/CVU tiene que tener 22 números");
+  const transfer = {
+    enabled: Boolean(d.transfer?.enabled),
+    discountPct: Math.min(50, num(d.transfer?.discountPct)),
+    alias: text(d.transfer?.alias, 40),
+    cbu,
+    holder: text(d.transfer?.holder, 80),
+    bank: text(d.transfer?.bank, 60),
+  };
+  if (transfer.enabled && !transfer.alias && !transfer.cbu) {
+    throw badRequest("Para activar la transferencia cargá tu alias o CBU");
+  }
+
+  const store = {
+    shipping: { zones, otherCost: num(d.shipping.otherCost), otherFreeFrom: num(d.shipping.otherFreeFrom) },
+    pickup: { enabled: d.pickup?.enabled !== false, text: text(d.pickup?.text, 120) },
+    transfer,
+  };
+  res.json({ store: await saveStore(store) });
 });
 
 // ---------- Personalizadas: precios, modelos y packs ----------

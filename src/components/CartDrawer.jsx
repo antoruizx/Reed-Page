@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router";
 import Icon from "./Icon";
 import { isCustomLine, useCart } from "../context/CartContext";
 import { EntrySummary, MiniTee, entriesOf } from "./CustomItem";
-import { useShipping } from "../lib/useShipping";
+import { savedProvince, useShipping } from "../lib/useShipping";
 import { money } from "../lib/format";
+import { lowestFreeFrom, shippingQuote } from "../../shared/store.js";
 
 export function QuantityStepper({ value, max, onChange, label }) {
   return (
@@ -121,7 +122,14 @@ export default function CartDrawer() {
     };
   }, [open, setOpen]);
 
-  const missingForFree = shipping ? shipping.freeFrom - subtotal : 0;
+  // Con la provincia del último checkout usamos su zona; si no, el mínimo más bajo
+  const province = savedProvince();
+  const freeFrom = shipping
+    ? province
+      ? shippingQuote(shipping, province, subtotal).freeFrom
+      : lowestFreeFrom(shipping)
+    : 0;
+  const missingForFree = freeFrom - subtotal;
 
   return (
     <div className={`drawer ${open ? "is-open" : ""}`} aria-hidden={!open}>
@@ -151,18 +159,19 @@ export default function CartDrawer() {
           </div>
         ) : (
           <>
-            {shipping && (
+            {shipping && freeFrom > 0 && (
               <p className="free-ship">
                 {missingForFree > 0 ? (
                   <>
                     Te faltan <strong>{money(missingForFree)}</strong> para el envío gratis
+                    {province ? ` a ${province}` : " (según tu zona)"}
                   </>
                 ) : (
-                  <>Tenés envío gratis</>
+                  <>Tenés envío gratis{province ? ` a ${province}` : " en tu zona"}</>
                 )}
                 <span
                   className="free-ship-bar"
-                  style={{ "--p": Math.min(1, subtotal / shipping.freeFrom) }}
+                  style={{ "--p": Math.min(1, subtotal / freeFrom) }}
                 />
               </p>
             )}

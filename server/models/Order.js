@@ -58,14 +58,22 @@ const orderSchema = new mongoose.Schema(
       province: String,
       zip: String,
       notes: String,
+      zone: String, // zona de envío con la que se calculó el costo
+      // Seguimiento (lo carga la tienda al despachar)
+      carrier: String,
+      tracking: String,
+      trackingUrl: String,
+      shippedAt: Date,
     },
     items: { type: [itemSchema], default: [] },
     customItems: { type: [customItemSchema], default: [] },
     subtotal: { type: Number, required: true },
     shippingCost: { type: Number, required: true, default: 0 },
+    discount: { type: Number, default: 0 }, // descuento por transferencia
     total: { type: Number, required: true },
     status: { type: String, enum: ORDER_STATUSES, default: "pendiente" },
     payment: {
+      provider: { type: String, enum: ["mercadopago", "transferencia"], default: "mercadopago" },
       preferenceId: String,
       paymentId: String,
       status: String, // approved | pending | in_process | rejected ...

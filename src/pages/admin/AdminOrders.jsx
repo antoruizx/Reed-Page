@@ -5,6 +5,52 @@ import { api } from "../../lib/api";
 import { money, STATUS_LABELS, formatDate } from "../../lib/format";
 import { usePageTitle } from "../../components/usePageTitle";
 import { ProductionSheet } from "../../components/CustomItem";
+import { CARRIERS } from "../../../shared/store.js";
+
+// Formulario para cargar el correo y el código de seguimiento
+function TrackingForm({ order, onSave }) {
+  const [form, setForm] = useState({
+    carrier: order.shipping.carrier || "correo",
+    code: order.shipping.tracking || "",
+    url: order.shipping.trackingUrl || "",
+  });
+  const [saving, setSaving] = useState(false);
+  const set = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const submit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    await onSave({ tracking: form });
+    setSaving(false);
+  };
+  return (
+    <form className="tracking-form" onSubmit={submit}>
+      <h3>Seguimiento</h3>
+      <div className="form-row">
+        <label className="field">
+          <span>Correo</span>
+          <select className="select" name="carrier" value={form.carrier} onChange={set}>
+            {CARRIERS.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span>Código</span>
+          <input className="input" name="code" value={form.code} onChange={set} placeholder="Ej. 360002123456789" />
+        </label>
+      </div>
+      <label className="field">
+        <span>Link de seguimiento (opcional)</span>
+        <input className="input" name="url" type="url" value={form.url} onChange={set} placeholder="https://…" />
+      </label>
+      <button className="btn btn-dark btn-sm" disabled={saving}>
+        {saving ? "Guardando…" : order.shipping.tracking ? "Actualizar seguimiento" : "Guardar y marcar como enviado"}
+      </button>
+    </form>
+  );
+}
 
 const FILTERS = [
   ["", "Todos"],
@@ -30,17 +76,24 @@ export default function AdminOrders() {
   usePageTitle("Pedidos");
   const [params, setParams] = useSearchParams();
   const estado = params.get("estado") || "";
+  const pago = params.get("pago") || "";
   const [q, setQ] = useState("");
   const [search, setSearch] = useState("");
   const [openId, setOpenId] = useState(null);
-  const { data, loading, error, reload } = useFetch("/admin/orders", { query: { estado, q: search } }, [estado, search]);
+  const { data, loading, error, reload } = useFetch("/admin/orders", { query: { estado, pago, q: search } }, [estado, pago, search]);
 
-  const changeStatus = async (order, status) => {
+  const patchOrder = async (order, body) => {
     try {
-      await api(`/admin/orders/${order.id}`, { method: "PATCH", body: { status } });
+      await api(`/admin/orders/${order.id}`, { method: "PATCH", body });
       reload();
     } catch (err) {
       window.alert(err.message);
+    }
+  };
+  const changeStatus = (order, status) => patchOrder(order, { status });
+  const confirmTransfer = (order) => {
+    if (window.confirm(`¿Confirmás que recibiste ${money(order.total)} del pedido #${order.number}? Se descuenta el stock.`)) {
+      patchOrder(order, { confirmTransfer: true });
     }
   };
 
@@ -53,13 +106,20 @@ export default function AdminOrders() {
           {FILTERS.map(([value, label]) => (
             <button
               key={value}
-              className={`chip ${estado === value ? "active" : ""}`}
-              aria-pressed={estado === value}
+              className={`chip ${estado === value && !pago ? "active" : ""}`}
+              aria-pressed={estado === value && !pago}
               onClick={() => setParams(value ? { estado: value } : {})}
             >
               {label}
             </button>
           ))}
+          <button
+            className={`chip ${pago ? "active" : ""}`}
+            aria-pressed={Boolean(pago)}
+            onClick={() => setParams({ estado: "pendiente", pago: "transferencia" })}
+          >
+            Transferencias por confirmar
+          </button>
         </div>
         <form
           role="search"
@@ -118,7 +178,9 @@ export default function AdminOrders() {
                         </div>
                       ))}
                       <p className="hint">
-                        Subtotal {money(o.subtotal)}, envío {money(o.shippingCost)}
+                        Subtotal {money(o.subtotal)}
+                        {o.discount > 0 && `, descuento −${money(o.discount)}`}, envío {money(o.shippingCost)}
+                        {o.shipping.zone && ` (${o.shipping.zone})`}
                       </p>
                     </div>
                     <div>
@@ -148,11 +210,20 @@ export default function AdminOrders() {
                       ) : (
                         <p>Retira en persona</p>
                       )}
+                      {o.shipping.method === "envio" && !["pendiente", "rechazada", "cancelada"].includes(o.status) && (
+                        <TrackingForm key={o.shipping.tracking || "nuevo"} order={o} onSave={(body) => patchOrder(o, body)} />
+                      )}
                     </div>
                     <div>
                       <h3>Pago</h3>
                       <p>
-                        {o.payment?.paymentId ? (
+                        {o.payment?.provider === "transferencia" ? (
+                          o.payment.status === "approved" ? (
+                            <>Transferencia recibida el {formatDate(o.payment.paidAt)}</>
+                          ) : (
+                            "Transferencia: todavía no la confirmaste"
+                          )
+                        ) : o.payment?.paymentId ? (
                           <>
                             Mercado Pago #{o.payment.paymentId}
                             <br />
@@ -162,6 +233,11 @@ export default function AdminOrders() {
                           "Todavía no hay pago"
                         )}
                       </p>
+                      {o.payment?.provider === "transferencia" && o.status === "pendiente" && (
+                        <button className="btn btn-primary btn-sm" onClick={() => confirmTransfer(o)}>
+                          Confirmar transferencia recibida
+                        </button>
+                      )}
                       <div className="admin-order-actions">
                         {NEXT[o.status] && (
                           <button className="btn btn-dark btn-sm" onClick={() => changeStatus(o, NEXT[o.status])}>

@@ -50,10 +50,6 @@ export const config = {
     accessToken: process.env.MP_ACCESS_TOKEN,
     webhookSecret: process.env.MP_WEBHOOK_SECRET,
   },
-  shipping: {
-    cost: Number(process.env.SHIPPING_COST ?? 6500),
-    freeFrom: Number(process.env.FREE_SHIPPING_FROM ?? 80000),
-  },
 };
 
 export const CATEGORIES = ["remeras", "buzos", "pantalones", "conjuntos", "accesorios"];

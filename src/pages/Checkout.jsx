@@ -1,21 +1,15 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { CartLines } from "../components/CartDrawer";
 import Icon from "../components/Icon";
 import { isCustomLine, useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import { useShipping } from "../lib/useShipping";
+import { saveProvince, savedProvince, useShipping } from "../lib/useShipping";
 import { api } from "../lib/api";
 import { money } from "../lib/format";
 import { rememberOrder } from "../lib/orders";
 import { usePageTitle } from "../components/usePageTitle";
-
-const PROVINCES = [
-  "Buenos Aires", "CABA", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes", "Entre Ríos",
-  "Formosa", "Jujuy", "La Pampa", "La Rioja", "Mendoza", "Misiones", "Neuquén", "Río Negro",
-  "Salta", "San Juan", "San Luis", "Santa Cruz", "Santa Fe", "Santiago del Estero",
-  "Tierra del Fuego", "Tucumán",
-];
+import { PROVINCES, shippingQuote, transferDiscount } from "../../shared/store.js";
 
 function Field({ label, name, error, hint, children, ...input }) {
   return (
@@ -38,7 +32,8 @@ export default function Checkout() {
   usePageTitle("Finalizar compra");
   const { items, subtotal, clear } = useCart();
   const { user } = useAuth();
-  const shipping = useShipping();
+  const store = useShipping();
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     name: user?.name || "",
@@ -47,18 +42,23 @@ export default function Checkout() {
     method: "envio",
     address: "",
     city: "",
-    province: "",
+    province: savedProvince(),
     zip: "",
     notes: "",
+    pay: "mercadopago",
   });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState({ sending: false, error: null });
 
   const set = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  const shippingCost =
-    form.method !== "envio" || !shipping ? 0 : subtotal >= shipping.freeFrom ? 0 : shipping.cost;
-  const total = subtotal + shippingCost;
+  const quote = store && form.method === "envio" && form.province ? shippingQuote(store, form.province, subtotal) : null;
+  const shippingCost = quote ? quote.cost : 0;
+  const transferOn = Boolean(store?.transfer.enabled);
+  const byTransfer = transferOn && form.pay === "transferencia";
+  const discount = byTransfer ? transferDiscount(store, subtotal) : 0;
+  const total = subtotal - discount + shippingCost;
+  const pickupOn = store ? store.pickup.enabled : true;
 
   if (items.length === 0) {
     return (
@@ -107,6 +107,7 @@ export default function Checkout() {
             .filter(isCustomLine)
             .map((i) => (i.type === "pack" ? { type: "pack", packId: i.packId, items: i.items } : { type: "custom", config: i.config, sizes: i.sizes })),
           customer: { name: form.name, email: form.email, phone: form.phone },
+          paymentMethod: byTransfer ? "transferencia" : "mercadopago",
           shipping: {
             method: form.method,
             address: form.address,
@@ -118,8 +119,10 @@ export default function Checkout() {
         },
       });
       rememberOrder(order.id, accessKey);
+      if (form.method === "envio") saveProvince(form.province);
       clear();
-      window.location.assign(checkoutUrl);
+      if (checkoutUrl) window.location.assign(checkoutUrl);
+      else navigate(`/pedido/${order.id}?key=${accessKey}`, { replace: true });
     } catch (err) {
       setErrors(err.details && typeof err.details === "object" && !Array.isArray(err.details) ? err.details : {});
       setStatus({ sending: false, error: err.message });
@@ -161,22 +164,24 @@ export default function Checkout() {
                 <span>
                   <strong>Envío a domicilio</strong>
                   <span className="hint">
-                    {shipping
-                      ? subtotal >= shipping.freeFrom
-                        ? "Gratis"
-                        : `${money(shipping.cost)}, gratis desde ${money(shipping.freeFrom)}`
-                      : "A todo el país"}
+                    {quote
+                      ? quote.isFree
+                        ? `Gratis a ${form.province}`
+                        : `${money(quote.cost)} a ${form.province}${quote.freeFrom ? `, gratis desde ${money(quote.freeFrom)}` : ""}`
+                      : "A todo el país. El costo depende de la provincia."}
                   </span>
                 </span>
               </label>
-              <label className={`ship-option ${form.method === "retiro" ? "active" : ""}`}>
-                <input type="radio" name="method" value="retiro" checked={form.method === "retiro"} onChange={set} />
-                <Icon name="store" />
-                <span>
-                  <strong>Retiro sin costo</strong>
-                  <span className="hint">San Miguel de Tucumán. Coordinamos por WhatsApp.</span>
-                </span>
-              </label>
+              {pickupOn && (
+                <label className={`ship-option ${form.method === "retiro" ? "active" : ""}`}>
+                  <input type="radio" name="method" value="retiro" checked={form.method === "retiro"} onChange={set} />
+                  <Icon name="store" />
+                  <span>
+                    <strong>Retiro sin costo</strong>
+                    <span className="hint">{store?.pickup.text || "Coordinamos por WhatsApp."}</span>
+                  </span>
+                </label>
+              )}
             </div>
 
             {form.method === "envio" && (
@@ -198,6 +203,32 @@ export default function Checkout() {
               </div>
             )}
           </section>
+
+          {transferOn && (
+            <section className="checkout-block">
+              <h2>Pago</h2>
+              <div className="ship-options" role="radiogroup" aria-label="Medio de pago">
+                <label className={`ship-option ${form.pay === "mercadopago" ? "active" : ""}`}>
+                  <input type="radio" name="pay" value="mercadopago" checked={form.pay === "mercadopago"} onChange={set} />
+                  <Icon name="card" />
+                  <span>
+                    <strong>Mercado Pago</strong>
+                    <span className="hint">Tarjeta, débito, dinero en cuenta o efectivo.</span>
+                  </span>
+                </label>
+                <label className={`ship-option ${form.pay === "transferencia" ? "active" : ""}`}>
+                  <input type="radio" name="pay" value="transferencia" checked={form.pay === "transferencia"} onChange={set} />
+                  <Icon name="card" />
+                  <span>
+                    <strong>
+                      Transferencia <span className="badge-off">{store.transfer.discountPct}% OFF</span>
+                    </strong>
+                    <span className="hint">Te mostramos el alias al confirmar. Lo preparamos cuando se acredita.</span>
+                  </span>
+                </label>
+              </div>
+            </section>
+          )}
         </div>
 
         <aside className="checkout-summary" aria-label="Resumen del pedido">
@@ -208,9 +239,17 @@ export default function Checkout() {
               <dt>Subtotal</dt>
               <dd>{money(subtotal)}</dd>
             </div>
+            {discount > 0 && (
+              <div>
+                <dt>Descuento transferencia ({store.transfer.discountPct}%)</dt>
+                <dd>−{money(discount)}</dd>
+              </div>
+            )}
             <div>
               <dt>Envío</dt>
-              <dd>{form.method === "retiro" ? "Sin costo" : shippingCost === 0 ? "Gratis" : money(shippingCost)}</dd>
+              <dd>
+                {form.method === "retiro" ? "Sin costo" : !quote ? "Elegí la provincia" : shippingCost === 0 ? "Gratis" : money(shippingCost)}
+              </dd>
             </div>
             <div className="totals-total">
               <dt>Total</dt>
@@ -225,11 +264,18 @@ export default function Checkout() {
           )}
 
           <button type="submit" className="btn btn-primary btn-block" disabled={status.sending}>
-            {status.sending ? "Conectando con Mercado Pago…" : `Pagar ${money(total)} con Mercado Pago`}
+            {byTransfer
+              ? status.sending
+                ? "Confirmando tu pedido…"
+                : `Confirmar pedido por ${money(total)}`
+              : status.sending
+                ? "Conectando con Mercado Pago…"
+                : `Pagar ${money(total)} con Mercado Pago`}
           </button>
           <p className="hint secure-note">
-            Vas a pagar en el sitio de Mercado Pago con tarjeta, débito, dinero en cuenta o efectivo.
-            Nosotros nunca vemos los datos de tu tarjeta.
+            {byTransfer
+              ? "En el próximo paso vas a ver el alias y el CBU para transferir. Mandanos el comprobante por WhatsApp."
+              : "Vas a pagar en el sitio de Mercado Pago con tarjeta, débito, dinero en cuenta o efectivo. Nosotros nunca vemos los datos de tu tarjeta."}
           </p>
           <Link to="/tienda" className="link small">
             Seguir comprando

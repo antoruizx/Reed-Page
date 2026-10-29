@@ -7,6 +7,75 @@ import { api } from "../lib/api";
 import { money, STATUS_LABELS, formatDate } from "../lib/format";
 import { orderKey, rememberOrder } from "../lib/orders";
 import { usePageTitle } from "../components/usePageTitle";
+import { carrierFor } from "../../shared/store.js";
+
+// Datos para transferir, con botón para copiar cada uno
+function TransferBox({ order, transfer }) {
+  const [copied, setCopied] = useState(null);
+  const copy = async (label, value) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(label);
+      setTimeout(() => setCopied(null), 2000);
+    } catch {
+      /* el navegador no deja copiar: se puede seleccionar a mano */
+    }
+  };
+  const rows = [
+    ["Monto", money(order.total), String(Math.round(order.total))],
+    ["Alias", transfer.alias, transfer.alias],
+    ["CBU / CVU", transfer.cbu, transfer.cbu],
+    ["Titular", transfer.holder],
+    ["Banco", transfer.bank],
+  ].filter(([, v]) => v);
+  return (
+    <div className="transfer-box">
+      <h2>Datos para transferir</h2>
+      <dl>
+        {rows.map(([label, shown, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>
+              <span className="num">{shown}</span>
+              {value && (
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => copy(label, value)}>
+                  {copied === label ? "Copiado" : "Copiar"}
+                </button>
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <a
+        className="btn btn-primary"
+        href={whatsappFor(`¡Hola! Te mando el comprobante de la transferencia del pedido #${order.number} (${money(order.total)}).`)}
+        target="_blank"
+        rel="noreferrer"
+      >
+        <Icon name="whatsapp" size={18} /> Enviar comprobante por WhatsApp
+      </a>
+    </div>
+  );
+}
+
+function TrackingInfo({ shipping }) {
+  if (!shipping.tracking) return null;
+  const carrier = carrierFor(shipping.carrier);
+  const link = shipping.trackingUrl || carrier?.url;
+  return (
+    <div className="tracking-info">
+      <h2>Seguimiento</h2>
+      <p>
+        {carrier && carrier.id !== "otro" ? carrier.name : "Código"}: <strong className="num">{shipping.tracking}</strong>
+      </p>
+      {link && (
+        <a className="btn btn-outline btn-sm" href={link} target="_blank" rel="noreferrer">
+          <Icon name="truck" size={18} /> Seguir mi envío
+        </a>
+      )}
+    </div>
+  );
+}
 
 const COPY = {
   pagada: {
@@ -33,6 +102,7 @@ export default function OrderPage() {
   const key = params.get("key") || orderKey(id);
   const paymentId = params.get("payment_id");
   const [order, setOrder] = useState(null);
+  const [transfer, setTransfer] = useState(null);
   const [error, setError] = useState(null);
   const [retrying, setRetrying] = useState(false);
   usePageTitle(order ? `Pedido #${order.number}` : "Tu pedido");
@@ -46,10 +116,12 @@ export default function OrderPage() {
     let tries = 0;
     const load = (withPayment) =>
       api(`/orders/${id}`, { query: { key, payment_id: withPayment ? paymentId : undefined } })
-        .then(({ order }) => {
+        .then(({ order, transfer }) => {
           setOrder(order);
-          // Mientras esté pendiente, consultamos cada 5 segundos (hasta 2 minutos)
-          if (order.status === "pendiente" && tries++ < 24) timer = setTimeout(() => load(false), 5000);
+          setTransfer(transfer || null);
+          // Mientras esté pendiente con Mercado Pago, consultamos cada 5 segundos (hasta 2 minutos)
+          const byTransfer = order.payment?.provider === "transferencia";
+          if (order.status === "pendiente" && !byTransfer && tries++ < 24) timer = setTimeout(() => load(false), 5000);
         })
         .catch(setError);
     load(true);
@@ -82,7 +154,14 @@ export default function OrderPage() {
   }
   if (!order) return <div className="spinner" role="status" aria-label="Cargando pedido" />;
 
-  const copy = COPY[order.status];
+  const byTransfer = order.payment?.provider === "transferencia";
+  const copy =
+    byTransfer && order.status === "pendiente"
+      ? {
+          title: "¡Pedido confirmado! Falta la transferencia.",
+          text: "Transferí el total y mandanos el comprobante por WhatsApp. Lo preparamos apenas se acredite.",
+        }
+      : COPY[order.status];
   const tone = { pagada: "ok", rechazada: "bad", cancelada: "bad" }[order.status] || "wait";
 
   return (
@@ -97,7 +176,7 @@ export default function OrderPage() {
           </p>
           <h1>{copy.title}</h1>
           <p>{copy.text}</p>
-          {["pendiente", "rechazada"].includes(order.status) && (
+          {!byTransfer && ["pendiente", "rechazada"].includes(order.status) && (
             <button className="btn btn-primary" onClick={retry} disabled={retrying}>
               {retrying ? "Abriendo Mercado Pago…" : order.status === "rechazada" ? "Probar otro medio de pago" : "Pagar ahora"}
             </button>
@@ -105,6 +184,8 @@ export default function OrderPage() {
           {error && order && <p className="alert alert-error">{error.message}</p>}
         </div>
       </section>
+
+      {byTransfer && transfer && <TransferBox order={order} transfer={transfer} />}
 
       <div className="order-grid">
         <section>
@@ -145,6 +226,12 @@ export default function OrderPage() {
               <dt>Subtotal</dt>
               <dd>{money(order.subtotal)}</dd>
             </div>
+            {order.discount > 0 && (
+              <div>
+                <dt>Descuento transferencia</dt>
+                <dd>−{money(order.discount)}</dd>
+              </div>
+            )}
             <div>
               <dt>Envío</dt>
               <dd>{order.shippingCost ? money(order.shippingCost) : "Sin costo"}</dd>
@@ -169,8 +256,11 @@ export default function OrderPage() {
           ) : (
             <p>Retiro sin costo. Te escribimos para coordinar.</p>
           )}
+          <TrackingInfo shipping={order.shipping} />
           <h2>Estado</h2>
           <p>{STATUS_LABELS[order.status]}</p>
+          <h2>Pago</h2>
+          <p>{byTransfer ? "Transferencia bancaria" : "Mercado Pago"}</p>
           <a
             className="btn btn-outline btn-sm"
             href={whatsappFor(`¡Hola! Tengo una consulta sobre mi pedido #${order.number}.`)}

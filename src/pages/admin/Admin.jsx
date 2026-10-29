@@ -4,6 +4,7 @@ import AdminProducts from "./AdminProducts";
 import ProductForm from "./ProductForm";
 import AdminOrders from "./AdminOrders";
 import AdminCustom from "./AdminCustom";
+import AdminShipping from "./AdminShipping";
 import "../../styles/admin.css";
 
 export default function Admin() {
@@ -17,6 +18,7 @@ export default function Admin() {
         <NavLink to="/admin/pedidos">Pedidos</NavLink>
         <NavLink to="/admin/productos">Productos</NavLink>
         <NavLink to="/admin/personalizadas">Personalizadas</NavLink>
+        <NavLink to="/admin/envios">Envíos y pagos</NavLink>
         <NavLink to="/" className="admin-nav-back">
           Ver la tienda
         </NavLink>
@@ -29,6 +31,7 @@ export default function Admin() {
           <Route path="productos/nuevo" element={<ProductForm />} />
           <Route path="productos/:id" element={<ProductForm />} />
           <Route path="personalizadas" element={<AdminCustom />} />
+          <Route path="envios" element={<AdminShipping />} />
         </Routes>
       </div>
     </div>

@@ -98,7 +98,7 @@ export async function syncPayment(paymentId) {
 }
 
 // Descuenta el stock una sola vez por pedido
-async function applyStock(orderId) {
+export async function applyStock(orderId) {
   const order = await Order.findOneAndUpdate(
     { _id: orderId, stockApplied: false },
     { $set: { stockApplied: true } },

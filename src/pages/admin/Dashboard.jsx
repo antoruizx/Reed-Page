@@ -23,6 +23,15 @@ export default function Dashboard() {
         </Link>
       )}
 
+      {data.pendingTransfers > 0 && (
+        <Link to="/admin/pedidos?estado=pendiente&pago=transferencia" className="admin-callout">
+          <strong>
+            {data.pendingTransfers} {data.pendingTransfers === 1 ? "transferencia" : "transferencias"} por confirmar
+          </strong>
+          <span>Revisar</span>
+        </Link>
+      )}
+
       <dl className="stats">
         <div>
           <dt>Ventas de los últimos 30 días</dt>
