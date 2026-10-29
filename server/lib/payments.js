@@ -117,6 +117,14 @@ export async function applyStock(orderId) {
       console.warn(`⚠️ Pedido #${order.number}: no alcanzó el stock de ${item.name} ${item.color}/${item.size}`);
     }
   }
+  // Los productos que con esta venta quedaron en 0 se marcan como agotados por ventas
+  const ids = [...new Set(order.items.map((i) => String(i.product)))];
+  for (const id of ids) {
+    const product = await Product.findById(id, { variants: 1, soldOutAt: 1 });
+    if (product && !product.soldOutAt && product.totalStock === 0) {
+      await Product.updateOne({ _id: id }, { $set: { soldOutAt: new Date() } });
+    }
+  }
 }
 
 // Valida la firma x-signature que manda Mercado Pago en los webhooks

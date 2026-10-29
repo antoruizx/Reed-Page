@@ -38,26 +38,11 @@ const productSchema = new mongoose.Schema(
     // Solo para conjuntos: las prendas que lo forman (se pueden comprar por separado)
     parts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     featured: { type: Boolean, default: false },
-    active: { type: Boolean, default: true }, // false = no publicado
-    soldOut: { type: Boolean, default: false }, // marcado "sin stock" a mano (se ve pero no se vende)
+    active: { type: Boolean, default: true }, // false = no publicado (no se ve en la tienda)
+    soldOutAt: { type: Date }, // cuándo se quedó en 0 por ventas (se borra al reponer stock)
   },
   { timestamps: true }
 );
-
-// Estado para el panel: publicado | oculto | agotado
-export const PRODUCT_STATUSES = ["publicado", "oculto", "agotado"];
-export function statusPatch(status) {
-  if (status === "oculto") return { active: false, soldOut: false };
-  if (status === "agotado") return { active: true, soldOut: true };
-  return { active: true, soldOut: false };
-}
-
-// Versión para la tienda: si está marcado sin stock, se muestra todo en 0
-export function forShop(product) {
-  const json = product.toJSON();
-  if (!product.soldOut) return json;
-  return { ...json, totalStock: 0, variants: json.variants.map((v) => ({ ...v, stock: 0 })) };
-}
 
 productSchema.virtual("totalStock").get(function () {
   return (this.variants || []).reduce((sum, v) => sum + v.stock, 0);

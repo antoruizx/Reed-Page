@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useFetch } from "../../lib/useFetch";
 import { api } from "../../lib/api";
-import { CATEGORY_LABELS, PRODUCT_STATUS_LABELS, money, productStatus } from "../../lib/format";
+import { CATEGORY_LABELS, money } from "../../lib/format";
 
 const STATUS_FILTERS = [
   ["", "Todos"],
@@ -11,9 +11,9 @@ const STATUS_FILTERS = [
   ["agotado", "Sin stock"],
 ];
 
-// "Sin stock" incluye los marcados a mano y los publicados que llegaron a 0 unidades
+// "Sin stock" = se quedaron en 0 por ventas (no los que se cargaron con 0)
 const matchesStatus = (p, status) =>
-  !status || (status === "agotado" ? productStatus(p) === "agotado" || (p.active && p.totalStock === 0) : productStatus(p) === status);
+  !status || (status === "publicado" ? p.active : status === "oculto" ? !p.active : p.soldOutBySales);
 import { usePageTitle } from "../../components/usePageTitle";
 
 export default function AdminProducts() {
@@ -23,13 +23,17 @@ export default function AdminProducts() {
   const [filter, setFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  const changeStatus = async (p, status) => {
+  const [busyId, setBusyId] = useState(null);
+  const togglePublished = async (p) => {
+    setBusyId(p.id);
     try {
-      await api(`/admin/products/${p.id}/status`, { method: "PATCH", body: { status } });
-      setMessage(`"${p.name}" ahora está: ${PRODUCT_STATUS_LABELS[status]}.`);
+      await api(`/admin/products/${p.id}/status`, { method: "PATCH", body: { active: !p.active } });
+      setMessage(p.active ? `"${p.name}" ya no se ve en la tienda.` : `"${p.name}" está publicado.`);
       reload();
     } catch (err) {
       setMessage(err.message);
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -129,23 +133,22 @@ export default function AdminProducts() {
                   </td>
                   <td>{CATEGORY_LABELS[p.category]}</td>
                   <td className="num">{money(p.price)}</td>
-                  <td className={`num ${p.totalStock === 0 ? "text-error" : ""}`}>{p.totalStock}</td>
+                  <td className="num">
+                    {p.soldOutBySales ? <span className="status status-agotado">Sin stock</span> : p.totalStock}
+                  </td>
                   <td>
-                    <label className="product-status">
-                      <span className="visually-hidden">Estado de {p.name}</span>
-                      <select
-                        className={`select select-sm status-select status-${productStatus(p)}`}
-                        value={productStatus(p)}
-                        onChange={(e) => changeStatus(p, e.target.value)}
-                      >
-                        {Object.entries(PRODUCT_STATUS_LABELS).map(([v, l]) => (
-                          <option key={v} value={v}>
-                            {l}
-                          </option>
-                        ))}
-                      </select>
-                      {productStatus(p) === "publicado" && p.totalStock === 0 && <span className="hint text-error">Sin stock (0 u.)</span>}
-                    </label>
+                    <button
+                      type="button"
+                      className={`status-toggle ${p.active ? "is-on" : ""}`}
+                      role="switch"
+                      aria-checked={p.active}
+                      aria-label={`${p.name}: ${p.active ? "publicado" : "no publicado"}. Tocá para cambiar.`}
+                      disabled={busyId === p.id}
+                      onClick={() => togglePublished(p)}
+                    >
+                      <span className="status-toggle-dot" aria-hidden="true" />
+                      {p.active ? "Publicado" : "No publicado"}
+                    </button>
                   </td>
                   <td className="row-actions">
                     <Link to={`/admin/productos/${p.id}`} className="btn btn-ghost btn-sm">

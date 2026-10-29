@@ -53,7 +53,7 @@ router.post("/", optionalAuth, async (req, res) => {
       continue;
     }
     if (!qty || qty < 1 || qty > 20) throw badRequest("Cantidad inválida");
-    const variant = p.soldOut ? null : p.variants.find((v) => v.color === i.color && v.size === i.size);
+    const variant = p.variants.find((v) => v.color === i.color && v.size === i.size);
     if (!variant || variant.stock < qty) {
       problems.push(
         variant?.stock

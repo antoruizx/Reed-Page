@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Product, { PRODUCT_STATUSES, slugify, statusPatch } from "../models/Product.js";
+import Product, { slugify } from "../models/Product.js";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Design from "../models/Design.js";
@@ -56,9 +56,7 @@ function cleanProduct(body) {
     colors: body.colors || [],
     variants: (body.variants || []).map((v) => ({ ...v, stock: Math.max(0, Number(v.stock) || 0) })),
     featured: Boolean(body.featured),
-    ...(PRODUCT_STATUSES.includes(body.status)
-      ? statusPatch(body.status)
-      : { active: body.active !== false, soldOut: Boolean(body.soldOut) }),
+    active: body.active !== false,
   };
   const colorNames = new Set(data.colors.map((c) => c.name));
   if (data.variants.some((v) => !colorNames.has(v.color))) {
@@ -78,7 +76,16 @@ async function uniqueSlug(name, excludeId) {
 
 router.get("/products", async (_req, res) => {
   const products = await Product.find().sort({ updatedAt: -1 });
-  res.json({ products });
+  // "Agotado por ventas": está en 0 y se agotó vendiendo (o tiene ventas pagas de antes)
+  const sold = new Set(
+    (await Order.distinct("items.product", { stockApplied: true })).map(String)
+  );
+  res.json({
+    products: products.map((p) => ({
+      ...p.toJSON(),
+      soldOutBySales: p.totalStock === 0 && Boolean(p.soldOutAt || sold.has(p._id.toString())),
+    })),
+  });
 });
 
 router.get("/products/:id", async (req, res) => {
@@ -101,15 +108,16 @@ router.put("/products/:id", async (req, res) => {
   if (data.name !== product.name) data.slug = await uniqueSlug(data.name || "", product._id);
   product.set(data);
   if (!data.compareAtPrice) product.compareAtPrice = undefined;
+  if (product.totalStock > 0) product.soldOutAt = undefined; // repuso stock: ya no está agotado
   await product.save();
   res.json({ product });
 });
 
-// Cambiar solo el estado desde la lista: publicado | oculto | agotado
+// Publicar / despublicar con un clic desde la lista
 router.patch("/products/:id/status", async (req, res) => {
-  const { status } = req.body ?? {};
-  if (!PRODUCT_STATUSES.includes(status)) throw badRequest("Estado inválido");
-  const product = await Product.findByIdAndUpdate(req.params.id, statusPatch(status), { new: true });
+  const { active } = req.body ?? {};
+  if (typeof active !== "boolean") throw badRequest("Estado inválido");
+  const product = await Product.findByIdAndUpdate(req.params.id, { active }, { new: true });
   if (!product) throw notFound();
   res.json({ product });
 });
