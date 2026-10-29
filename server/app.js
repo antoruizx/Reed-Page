@@ -21,7 +21,17 @@ app.use((req, res, next) =>
 // Front y API viven en el mismo dominio (Vercel en producción, proxy de Vite en local),
 // así que no hace falta CORS.
 
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+// /api/health?db=1 también prueba la conexión a Mongo (sin mostrar datos sensibles)
+app.get("/api/health", async (req, res) => {
+  if (!req.query.db) return res.json({ ok: true });
+  const mongoUri = process.env.MONGO_URI ? "cargada" : "falta";
+  try {
+    await connectDB();
+    res.json({ ok: true, mongoUri, db: "conectada" });
+  } catch (err) {
+    res.status(503).json({ ok: false, mongoUri, db: err.name || "error", code: err.code ?? null });
+  }
+});
 
 // Conectamos a Mongo antes de cualquier ruta de la API
 app.use("/api", async (_req, _res, next) => {
