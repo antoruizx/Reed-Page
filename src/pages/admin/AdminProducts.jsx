@@ -2,7 +2,18 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useFetch } from "../../lib/useFetch";
 import { api } from "../../lib/api";
-import { CATEGORY_LABELS, money } from "../../lib/format";
+import { CATEGORY_LABELS, PRODUCT_STATUS_LABELS, money, productStatus } from "../../lib/format";
+
+const STATUS_FILTERS = [
+  ["", "Todos"],
+  ["publicado", "Publicados"],
+  ["oculto", "No publicados"],
+  ["agotado", "Sin stock"],
+];
+
+// "Sin stock" incluye los marcados a mano y los publicados que llegaron a 0 unidades
+const matchesStatus = (p, status) =>
+  !status || (status === "agotado" ? productStatus(p) === "agotado" || (p.active && p.totalStock === 0) : productStatus(p) === status);
 import { usePageTitle } from "../../components/usePageTitle";
 
 export default function AdminProducts() {
@@ -10,6 +21,17 @@ export default function AdminProducts() {
   const { data, loading, error, reload } = useFetch("/admin/products");
   const [message, setMessage] = useState(null);
   const [filter, setFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  const changeStatus = async (p, status) => {
+    try {
+      await api(`/admin/products/${p.id}/status`, { method: "PATCH", body: { status } });
+      setMessage(`"${p.name}" ahora está: ${PRODUCT_STATUS_LABELS[status]}.`);
+      reload();
+    } catch (err) {
+      setMessage(err.message);
+    }
+  };
 
   const remove = async (p) => {
     if (!window.confirm(`¿Borrar "${p.name}"? Si ya se vendió, se oculta de la tienda en vez de borrarse.`)) return;
@@ -22,9 +44,9 @@ export default function AdminProducts() {
     }
   };
 
-  const products = (data?.products || []).filter((p) =>
-    p.name.toLowerCase().includes(filter.toLowerCase())
-  );
+  const all = data?.products || [];
+  const products = all.filter((p) => p.name.toLowerCase().includes(filter.toLowerCase()) && matchesStatus(p, statusFilter));
+  const countFor = (status) => all.filter((p) => matchesStatus(p, status)).length;
 
   return (
     <>
@@ -41,14 +63,29 @@ export default function AdminProducts() {
         </p>
       )}
 
-      <input
-        className="input admin-search"
-        type="search"
-        placeholder="Buscar por nombre"
-        aria-label="Buscar productos"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-      />
+      <div className="admin-filters">
+        <div className="chips" role="group" aria-label="Filtrar por estado">
+          {STATUS_FILTERS.map(([value, label]) => (
+            <button
+              key={value}
+              className={`chip ${statusFilter === value ? "active" : ""}`}
+              aria-pressed={statusFilter === value}
+              onClick={() => setStatusFilter(value)}
+            >
+              {label}
+              {data && ` (${countFor(value)})`}
+            </button>
+          ))}
+        </div>
+        <input
+          className="input admin-search"
+          type="search"
+          placeholder="Buscar por nombre"
+          aria-label="Buscar productos"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        />
+      </div>
 
       {loading ? (
         <div className="spinner" role="status" aria-label="Cargando" />
@@ -56,8 +93,8 @@ export default function AdminProducts() {
         <p className="alert alert-error">{error.message}</p>
       ) : products.length === 0 ? (
         <div className="empty">
-          <p>{filter ? "No hay productos con ese nombre." : "Todavía no cargaste productos."}</p>
-          {!filter && (
+          <p>{filter || statusFilter ? "No hay productos con ese filtro." : "Todavía no cargaste productos."}</p>
+          {!filter && !statusFilter && (
             <Link to="/admin/productos/nuevo" className="btn btn-dark">
               Cargar el primero
             </Link>
@@ -94,9 +131,21 @@ export default function AdminProducts() {
                   <td className="num">{money(p.price)}</td>
                   <td className={`num ${p.totalStock === 0 ? "text-error" : ""}`}>{p.totalStock}</td>
                   <td>
-                    <span className={`status ${p.active ? "status-pagada" : ""}`}>
-                      {p.active ? "Publicado" : "Oculto"}
-                    </span>
+                    <label className="product-status">
+                      <span className="visually-hidden">Estado de {p.name}</span>
+                      <select
+                        className={`select select-sm status-select status-${productStatus(p)}`}
+                        value={productStatus(p)}
+                        onChange={(e) => changeStatus(p, e.target.value)}
+                      >
+                        {Object.entries(PRODUCT_STATUS_LABELS).map(([v, l]) => (
+                          <option key={v} value={v}>
+                            {l}
+                          </option>
+                        ))}
+                      </select>
+                      {productStatus(p) === "publicado" && p.totalStock === 0 && <span className="hint text-error">Sin stock (0 u.)</span>}
+                    </label>
                   </td>
                   <td className="row-actions">
                     <Link to={`/admin/productos/${p.id}`} className="btn btn-ghost btn-sm">

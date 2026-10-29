@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Product from "../models/Product.js";
+import Product, { forShop } from "../models/Product.js";
 import { CATEGORIES } from "../config.js";
 import { notFound } from "../errors.js";
 
@@ -21,6 +21,7 @@ router.get("/", async (req, res) => {
 
   // Solo mostramos productos que tengan stock en el talle/color pedido
   if (talle || color) {
+    filter.soldOut = { $ne: true };
     filter.variants = {
       $elemMatch: {
         stock: { $gt: 0 },
@@ -38,17 +39,17 @@ router.get("/", async (req, res) => {
     .sort(SORTS[orden] || SORTS.nuevos)
     .limit(Math.min(Number(limit) || 60, 100));
 
-  res.json({ products });
+  res.json({ products: products.map(forShop) });
 });
 
 // Opciones para armar los filtros del catálogo
 router.get("/filters", async (_req, res) => {
-  const products = await Product.find({ active: true }, { colors: 1, variants: 1 });
+  const products = await Product.find({ active: true }, { colors: 1, variants: 1, soldOut: 1 });
   const colors = new Map();
   const sizes = new Set();
   for (const p of products) {
     p.colors.forEach((c) => colors.set(c.name, c.hex));
-    p.variants.forEach((v) => v.stock > 0 && sizes.add(v.size));
+    if (!p.soldOut) p.variants.forEach((v) => v.stock > 0 && sizes.add(v.size));
   }
   const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "Único"];
   res.json({
@@ -71,7 +72,12 @@ router.get("/:slug", async (req, res) => {
     ? await Product.find({ _id: { $in: product.parts }, active: true })
     : [];
   const sets = await Product.find({ active: true, parts: product._id }).limit(4);
-  res.json({ product, related, parts, sets });
+  res.json({
+    product: forShop(product),
+    related: related.map(forShop),
+    parts: parts.map(forShop),
+    sets: sets.map(forShop),
+  });
 });
 
 export default router;

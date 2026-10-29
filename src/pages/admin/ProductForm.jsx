@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { api } from "../../lib/api";
-import { CATEGORY_LABELS } from "../../lib/format";
+import { CATEGORY_LABELS, PRODUCT_STATUS_LABELS, productStatus } from "../../lib/format";
 import { usePageTitle } from "../../components/usePageTitle";
 
 const ALL_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "Único"];
@@ -18,7 +18,7 @@ const EMPTY = {
   sizes: ["S", "M", "L", "XL"],
   stock: {}, // { "Negro|M": 5 }
   featured: false,
-  active: true,
+  status: "publicado",
 };
 
 const key = (color, size) => `${color}|${size}`;
@@ -37,7 +37,7 @@ function fromProduct(p) {
     sizes,
     stock: Object.fromEntries(p.variants.map((v) => [key(v.color, v.size), v.stock])),
     featured: p.featured,
-    active: p.active,
+    status: productStatus(p),
   };
 }
 
@@ -108,7 +108,7 @@ export default function ProductForm() {
         form.sizes.map((s) => ({ color: c.name.trim(), size: s, stock: Number(form.stock[key(c.name, s)] || 0) }))
       ),
       featured: form.featured,
-      active: form.active,
+      status: form.status,
     };
 
     setSaving(true);
@@ -209,9 +209,23 @@ export default function ProductForm() {
           <label className="check">
             <input type="checkbox" checked={form.featured} onChange={set("featured")} /> Mostrar en “Lo nuevo” de la portada
           </label>
-          <label className="check">
-            <input type="checkbox" checked={form.active} onChange={set("active")} /> Publicado en la tienda
-          </label>
+          <div className="field">
+            <label htmlFor="status">Estado</label>
+            <select id="status" className="select" value={form.status} onChange={set("status")}>
+              {Object.entries(PRODUCT_STATUS_LABELS).map(([v, l]) => (
+                <option key={v} value={v}>
+                  {l}
+                </option>
+              ))}
+            </select>
+            <span className="hint">
+              {form.status === "oculto"
+                ? "No aparece en la tienda."
+                : form.status === "agotado"
+                  ? "Se ve en la tienda con el cartel “Sin stock” y no se puede comprar. El stock cargado se guarda igual."
+                  : "Se ve en la tienda y se puede comprar."}
+            </span>
+          </div>
         </div>
       </div>
 

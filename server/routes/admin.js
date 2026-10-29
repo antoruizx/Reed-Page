@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Product, { slugify } from "../models/Product.js";
+import Product, { PRODUCT_STATUSES, slugify, statusPatch } from "../models/Product.js";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Design from "../models/Design.js";
@@ -56,7 +56,9 @@ function cleanProduct(body) {
     colors: body.colors || [],
     variants: (body.variants || []).map((v) => ({ ...v, stock: Math.max(0, Number(v.stock) || 0) })),
     featured: Boolean(body.featured),
-    active: body.active !== false,
+    ...(PRODUCT_STATUSES.includes(body.status)
+      ? statusPatch(body.status)
+      : { active: body.active !== false, soldOut: Boolean(body.soldOut) }),
   };
   const colorNames = new Set(data.colors.map((c) => c.name));
   if (data.variants.some((v) => !colorNames.has(v.color))) {
@@ -100,6 +102,15 @@ router.put("/products/:id", async (req, res) => {
   product.set(data);
   if (!data.compareAtPrice) product.compareAtPrice = undefined;
   await product.save();
+  res.json({ product });
+});
+
+// Cambiar solo el estado desde la lista: publicado | oculto | agotado
+router.patch("/products/:id/status", async (req, res) => {
+  const { status } = req.body ?? {};
+  if (!PRODUCT_STATUSES.includes(status)) throw badRequest("Estado inválido");
+  const product = await Product.findByIdAndUpdate(req.params.id, statusPatch(status), { new: true });
+  if (!product) throw notFound();
   res.json({ product });
 });
 
