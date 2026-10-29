@@ -49,17 +49,17 @@
 }
 @keyframes green-glow {
   from {
-    text-shadow: 0 0 0.25rem rgba(0, 138, 69, 0.2);
+    text-shadow: 0 0 0.25rem rgba(0, 120, 60, 0.25);
   }
   to {
-    text-shadow: 0 0 0.75rem rgba(0, 138, 69, 0.55);
+    text-shadow: 0 0 0.75rem rgba(0, 120, 60, 0.6);
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .main-nav .nav-accent:not(.active),
   .main-nav .nav-admin {
     animation: none;
-    text-shadow: 0 0 0.5rem rgba(0, 138, 69, 0.4);
+    text-shadow: 0 0 0.5rem rgba(0, 120, 60, 0.45);
   }
 }
 .site-header.is-dark .icon-btn:hover {

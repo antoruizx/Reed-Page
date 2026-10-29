@@ -17,8 +17,8 @@
   --gum-dark: #000000;
   --sun: #c9d1b1;        /* verde salvia: ofertas */
   --ok: #4d6b3c;         /* verde musgo */
-  --adi: #003d2b;        /* verde bosque bien oscuro, sobre fondos claros */
-  --adi-bright: #008a45; /* el mismo verde, apenas más claro para leerse sobre fondos oscuros */
+  --adi: #00251a;        /* verde casi negro, sobre fondos claros */
+  --adi-bright: #006b35; /* el mismo verde, apenas más claro sobre fondos oscuros (el brillo ayuda a leerlo) */
   --error: #b3261e;
 
   --font: "Inter Tight", "Helvetica Neue", system-ui, -apple-system, "Segoe UI", sans-serif;
