@@ -25,6 +25,19 @@ function cleanMongoUri() {
   if (/^mongodb:\/\//.test(v) && /@[^/?]+\.mongodb\.net([/?]|$)/.test(v)) {
     v = v.replace(/^mongodb:\/\//, "mongodb+srv://");
   }
+  // Si la contraseña trae símbolos como @ : / ? #, los codificamos para que no rompan el link.
+  // Todo lo que está entre "usuario:" y el ÚLTIMO "@" es la contraseña.
+  const m = v.match(/^(mongodb(?:\+srv)?:\/\/)([^:@/]+):(.*)@([^@]+)$/);
+  if (m) {
+    const [, scheme, user, pass, rest] = m;
+    let plain = pass;
+    try {
+      plain = decodeURIComponent(pass);
+    } catch {
+      /* tenía un % suelto: la usamos tal cual */
+    }
+    v = `${scheme}${user}:${encodeURIComponent(plain)}@${rest}`;
+  }
   return v || undefined;
 }
 
