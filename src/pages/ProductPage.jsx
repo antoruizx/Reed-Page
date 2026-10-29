@@ -23,10 +23,65 @@ export default function ProductPage() {
   if (error?.status === 404) return <NotFound message={error.message} />;
   if (error) return <p className="wrap page alert alert-error">{error.message}</p>;
 
-  return <ProductView key={product.id} product={product} related={data.related} />;
+  return (
+    <ProductView
+      key={product.id}
+      product={product}
+      related={data.related}
+      parts={data.parts || []}
+      sets={data.sets || []}
+    />
+  );
 }
 
-function ProductView({ product, related }) {
+// Conjunto: muestra cuánto se ahorra y las prendas para llevar por separado.
+// Prenda suelta: ofrece los conjuntos que la incluyen.
+function SetBox({ product, parts, sets }) {
+  if (parts.length > 0) {
+    const separate = parts.reduce((sum, p) => sum + p.price, 0);
+    const saving = separate - product.price;
+    return (
+      <div className="set-box">
+        <p className="set-box-title">
+          {saving > 0 ? <>Llevando el conjunto ahorrás <strong>{money(saving)}</strong></> : "Este conjunto incluye"}
+        </p>
+        <p className="hint">¿Preferís una sola prenda? Comprala por separado:</p>
+        <ul className="set-parts">
+          {parts.map((p) => (
+            <li key={p.id}>
+              <Link to={`/producto/${p.slug}`}>
+                <img src={p.images[0]} alt="" width="64" height="80" />
+                <span>{p.name}</span>
+                <span className="set-part-price">{money(p.price)}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+  if (sets.length > 0) {
+    return (
+      <div className="set-box">
+        <p className="set-box-title">Completá el look y ahorrá</p>
+        <ul className="set-parts">
+          {sets.map((p) => (
+            <li key={p.id}>
+              <Link to={`/producto/${p.slug}`}>
+                <img src={p.images[0]} alt="" width="64" height="80" />
+                <span>{p.name}</span>
+                <span className="set-part-price">{money(p.price)}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+  return null;
+}
+
+function ProductView({ product, related, parts, sets }) {
   const { add } = useCart();
   const firstWithStock = product.colors.find((c) =>
     product.variants.some((v) => v.color === c.name && v.stock > 0)
@@ -181,6 +236,8 @@ function ProductView({ product, related }) {
                 {soldOut ? "Sin stock" : "Agregar al carrito"}
               </button>
             </div>
+
+            <SetBox product={product} parts={parts} sets={sets} />
 
             <a
               className="ask-wa"

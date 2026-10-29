@@ -14,7 +14,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "seed": "node --env-file=.env server/seed.js",
-    "make-admin": "node --env-file=.env server/scripts/make-admin.js"
+    "make-admin": "node --env-file=.env server/scripts/make-admin.js",
+    "images": "node --env-file=.env server/scripts/generate-images.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

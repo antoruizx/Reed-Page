@@ -58,7 +58,7 @@ export default function About() {
             tu equipo o tu evento, la estampamos con vos.
           </p>
         </div>
-        <img className="about-photo" src="/img/products/remera-chaos-uva.jpg" alt="Dos personas de espaldas con remeras color uva estampadas" width="1200" height="800" />
+        <img className="about-photo" src="/img/products/remera-alas-blanca.jpg" alt="Chico y chica con remeras oversize blanca y negra" width="1200" height="800" />
       </section>
 
       <section className="wrap section about-quality">

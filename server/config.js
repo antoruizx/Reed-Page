@@ -21,7 +21,9 @@ export const config = {
   },
 };
 
-export const CATEGORIES = ["remeras", "buzos", "accesorios"];
+export const CATEGORIES = ["remeras", "buzos", "pantalones", "conjuntos", "accesorios"];
+// Un conjunto sale este porcentaje menos que comprar sus prendas por separado
+export const SET_DISCOUNT = 0.1;
 export const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "Único"];
 export const ORDER_STATUSES = [
   "pendiente", // creada, esperando pago

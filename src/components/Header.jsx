@@ -8,6 +8,7 @@ const links = [
   { to: "/tienda", label: "Tienda" },
   { to: "/tienda?categoria=remeras", label: "Remeras" },
   { to: "/tienda?categoria=buzos", label: "Buzos" },
+  { to: "/tienda?categoria=conjuntos", label: "Conjuntos" },
   { to: "/disena", label: "Diseñá la tuya", accent: true },
   { to: "/revende", label: "Revendé" },
   { to: "/nosotros", label: "Nosotros" },
@@ -21,6 +22,29 @@ export default function Header() {
 
   useEffect(() => setMenuOpen(false), [location]);
 
+  // Sobre una sección marcada con data-header-dark (la portada negra) el menú
+  // es transparente con letras blancas; al pasarla vuelve a ser el claro.
+  // La línea de abajo del menú solo aparece cuando se bajó la página.
+  const [overDark, setOverDark] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const update = () => {
+      const el = document.querySelector("[data-header-dark]");
+      const headerH = document.querySelector(".site-header")?.offsetHeight || 72;
+      setOverDark(Boolean(el) && el.getBoundingClientRect().bottom > headerH);
+      setScrolled(window.scrollY > 0);
+    };
+    update();
+    const late = setTimeout(update, 100); // por si la página termina de cargar después
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      clearTimeout(late);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [location.pathname]);
+
   const isActive = (to) => {
     const [path, qs] = to.split("?");
     if (location.pathname !== path) return false;
@@ -29,7 +53,9 @@ export default function Header() {
   };
 
   return (
-    <header className="site-header">
+    <header
+      className={`site-header ${overDark && !menuOpen ? "is-dark" : ""} ${scrolled && !overDark ? "is-scrolled" : ""}`}
+    >
       <div className="wrap header-inner">
         <button
           className="icon-btn menu-toggle"
@@ -41,7 +67,7 @@ export default function Header() {
         </button>
 
         <Link to="/" className="brand" aria-label="Reed, ir al inicio">
-          <img src="/img/brand/reed-r-ink.png" alt="" width="40" height="34" />
+          <img src="/img/brand/reed-r-ink.png" alt="" width="26" height="22" />
           <span>Reed</span>
         </Link>
 
@@ -64,11 +90,21 @@ export default function Header() {
         </nav>
 
         <div className="header-actions">
-          <Link to={user ? "/cuenta" : "/ingresar"} className="icon-btn" aria-label={user ? "Mi cuenta" : "Iniciar sesión"}>
-            <Icon name="user" />
+          <Link
+            to={user ? "/cuenta" : "/ingresar"}
+            className="header-action"
+            aria-label={user ? "Mi cuenta" : "Iniciar sesión"}
+          >
+            <Icon name="user" size={18} />
+            <span className="header-action-label">{user ? "Cuenta" : "Ingresar"}</span>
           </Link>
-          <button className="icon-btn" onClick={() => setOpen(true)} aria-label={`Abrir carrito, ${count} productos`}>
-            <Icon name="bag" />
+          <button
+            className="header-action"
+            onClick={() => setOpen(true)}
+            aria-label={`Abrir carrito, ${count} productos`}
+          >
+            <Icon name="bag" size={18} />
+            <span className="header-action-label">Carrito ({count})</span>
             {count > 0 && <span className="cart-count">{count}</span>}
           </button>
         </div>

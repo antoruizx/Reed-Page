@@ -7,7 +7,7 @@ function AuthShell({ title, children, aside }) {
   return (
     <div className="auth-page">
       <div className="auth-photo" aria-hidden="true">
-        <img src="/img/products/remera-oversize-coral.jpg" alt="" />
+        <img src="/img/products/buzo-arena.jpg" alt="" />
       </div>
       <div className="auth-panel">
         <h1 className="page-title">{title}</h1>

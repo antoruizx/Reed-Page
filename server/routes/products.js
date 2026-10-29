@@ -66,7 +66,12 @@ router.get("/:slug", async (req, res) => {
     category: product.category,
     _id: { $ne: product._id },
   }).limit(4);
-  res.json({ product, related });
+  // Conjunto: sus prendas sueltas. Prenda suelta: los conjuntos que la incluyen.
+  const parts = product.parts?.length
+    ? await Product.find({ _id: { $in: product.parts }, active: true })
+    : [];
+  const sets = await Product.find({ active: true, parts: product._id }).limit(4);
+  res.json({ product, related, parts, sets });
 });
 
 export default router;

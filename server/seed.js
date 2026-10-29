@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { connectDB } from "./db.js";
 import Product, { slugify } from "./models/Product.js";
 import Design from "./models/Design.js";
+import { SET_DISCOUNT } from "./config.js";
 
 const TEE = [
   "Jersey peinado 24/1, 100% algodón",
@@ -37,7 +38,20 @@ const C = {
   empolvado: { name: "Rosa empolvado", hex: "#E7C8C1" },
   ladrillo: { name: "Ladrillo", hex: "#B0563A" },
   amarillo: { name: "Amarillo", hex: "#F0C233" },
+  verde: { name: "Verde bosque", hex: "#1F4D3A" },
+  chocolate: { name: "Chocolate", hex: "#4A3328" },
+  grafito: { name: "Gris grafito", hex: "#5B5B58" },
+  crema: { name: "Crema", hex: "#EDE6D6" },
+  carey: { name: "Carey", hex: "#6B4A2E" },
 };
+const FLEECE = [
+  "Frisa invisible 70% algodón, 30% poliéster",
+  "Calce relajado, cintura elastizada con cordón",
+  "Bolsillos laterales",
+  "Lavar del revés con agua fría",
+];
+const SHADES = ["Lente con filtro UV400", "Incluye funda de tela", "Talle único"];
+const img = (name) => `/img/products/${name}.jpg`;
 
 const products = [
   {
@@ -135,6 +149,134 @@ const products = [
     sizes: ["Único"],
     featured: true,
   },
+
+  // ---------- Prendas sueltas que forman los conjuntos ----------
+  {
+    name: "Buzo Oversize Básico",
+    category: "buzos",
+    price: 59900,
+    description: "Buzo canguro liso, bien ancho y pesado. Combina con el jogger y el short de frisa.",
+    details: HOODIE,
+    images: [img("buzo-basico-negro"), img("buzo-basico-verde")],
+    colors: [
+      { ...C.negro, image: img("buzo-basico-negro") },
+      { ...C.verde, image: img("buzo-basico-verde") },
+      { ...C.chocolate, image: img("buzo-basico-chocolate") },
+      C.grafito,
+    ],
+  },
+  {
+    name: "Jogger Frisa",
+    category: "pantalones",
+    price: 49900,
+    description: "Jogger de frisa con pierna recta y puño. El par del buzo básico.",
+    details: FLEECE,
+    images: [img("jogger-frisa")],
+    colors: [C.negro, C.grafito],
+  },
+  {
+    name: "Short Frisa",
+    category: "pantalones",
+    price: 34900,
+    description: "Short largo de frisa, cómodo para todo el día. Se arma conjunto con el buzo básico.",
+    details: FLEECE,
+    images: [img("short-frisa")],
+    colors: [C.grafito, C.verde, C.chocolate, C.negro],
+  },
+  {
+    name: "Short Rústico",
+    category: "pantalones",
+    price: 27900,
+    description: "Short de algodón rústico, liviano para el verano. Va con cualquier remera oversize.",
+    details: ["Algodón rústico 100%", "Cintura elastizada con cordón", "Lavar con agua fría"],
+    images: [img("short-rustico")],
+    colors: [C.negro, C.blanco],
+  },
+  {
+    name: "Pantalón Ancho",
+    category: "pantalones",
+    price: 54900,
+    description: "Pierna ancha y tiro alto, de gabardina liviana. Queda perfecto con remera oversize.",
+    details: ["Gabardina de algodón", "Pierna ancha, tiro alto", "Pinzas al frente", "Lavar con agua fría"],
+    images: [img("pantalon-ancho")],
+    colors: [C.crema, C.negro],
+  },
+
+  // ---------- Gafas ----------
+  {
+    name: "Gafas Oval",
+    category: "accesorios",
+    price: 22900,
+    description: "Marco ovalado y fino, lentes negras. El toque noventoso para cualquier look.",
+    details: SHADES,
+    images: [img("gafas-oval")],
+    colors: [C.negro],
+    sizes: ["Único"],
+    featured: true,
+  },
+  {
+    name: "Gafas Bicolor",
+    category: "accesorios",
+    price: 24900,
+    description: "Marco rectangular grueso en blanco y negro. Para no pasar desapercibida.",
+    details: SHADES,
+    images: [img("gafas-bicolor")],
+    colors: [C.negro, C.blanco],
+    sizes: ["Único"],
+  },
+  {
+    name: "Gafas Shield",
+    category: "accesorios",
+    price: 26900,
+    description: "Lente envolvente de una sola pieza, estilo deportivo de los 2000.",
+    details: SHADES,
+    images: [img("gafas-shield")],
+    colors: [C.negro],
+    sizes: ["Único"],
+  },
+  {
+    name: "Gafas Slim",
+    category: "accesorios",
+    price: 21900,
+    description: "Marco angosto y alargado. Combinan con todo, de día o de noche.",
+    details: SHADES,
+    images: [img("gafas-slim")],
+    colors: [C.negro, C.carey],
+    sizes: ["Único"],
+  },
+];
+
+// ---------- Conjuntos: salen 10% menos que las prendas por separado ----------
+const sets = [
+  {
+    name: "Conjunto Buzo + Jogger",
+    parts: ["buzo-oversize-basico", "jogger-frisa"],
+    description: "Buzo oversize básico y jogger de frisa al tono. El conjunto para todo el invierno.",
+    images: [img("conjunto-buzo-jogger")],
+    colors: [C.negro, C.grafito],
+    featured: true,
+  },
+  {
+    name: "Conjunto Buzo + Short",
+    parts: ["buzo-oversize-basico", "short-frisa"],
+    description: "Buzo oversize y short de frisa del mismo color. Cómodo y canchero.",
+    images: [img("conjunto-buzo-short")],
+    colors: [C.grafito, C.verde, C.chocolate],
+  },
+  {
+    name: "Conjunto Remera + Short",
+    parts: ["remera-oversize-lisa", "short-rustico"],
+    description: "Remera oversize lisa y short rústico. El uniforme del verano.",
+    images: [img("conjunto-remera-short")],
+    colors: [C.negro, C.blanco],
+  },
+  {
+    name: "Conjunto Remera + Pantalón Ancho",
+    parts: ["remera-oversize-lisa", "pantalon-ancho"],
+    description: "Remera oversize y pantalón de pierna ancha. Simple, prolijo y con onda.",
+    images: [img("conjunto-remera-pantalon")],
+    colors: [C.negro, C.crema],
+  },
 ];
 
 await connectDB();
@@ -148,6 +290,23 @@ for (const p of products) {
   });
 }
 console.log(`✅ ${products.length} productos cargados`);
+
+for (const set of sets) {
+  const parts = await Product.find({ slug: { $in: set.parts } });
+  if (parts.length !== set.parts.length) throw new Error(`Faltan prendas para ${set.name}`);
+  const separate = parts.reduce((sum, p) => sum + p.price, 0);
+  await Product.create({
+    ...set,
+    category: "conjuntos",
+    slug: slugify(set.name),
+    parts: parts.map((p) => p._id),
+    details: ["Incluye: " + parts.map((p) => p.name).join(" + "), "Cada prenda se puede comprar por separado"],
+    price: Math.round((separate * (1 - SET_DISCOUNT)) / 100) * 100,
+    compareAtPrice: separate, // se muestra tachado: lo que salen por separado
+    variants: variants(set.colors),
+  });
+}
+console.log(`✅ ${sets.length} conjuntos cargados`);
 
 // Diseños del catálogo para el diseñador de remeras (originales de Reed)
 const designs = [

@@ -71,6 +71,7 @@ export default function Icon({ name, size = 22, label, ...rest }) {
     <svg
       width={size}
       height={size}
+      style={{ width: `${size / 16}rem`, height: `${size / 16}rem`, flexShrink: 0 }}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

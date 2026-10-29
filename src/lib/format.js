@@ -9,6 +9,8 @@ export const money = (n) => ars.format(Math.round(n || 0));
 export const CATEGORY_LABELS = {
   remeras: "Remeras",
   buzos: "Buzos",
+  pantalones: "Pantalones",
+  conjuntos: "Conjuntos",
   accesorios: "Accesorios",
 };
 

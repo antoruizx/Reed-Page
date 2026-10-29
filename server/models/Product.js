@@ -35,6 +35,8 @@ const productSchema = new mongoose.Schema(
     },
     colors: [colorSchema],
     variants: [variantSchema],
+    // Solo para conjuntos: las prendas que lo forman (se pueden comprar por separado)
+    parts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     featured: { type: Boolean, default: false },
     active: { type: Boolean, default: true },
   },

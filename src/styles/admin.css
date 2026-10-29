@@ -1,26 +1,25 @@
 /* ========================= PANEL ADMIN ========================= */
 .admin {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 13.75rem 1fr;
   min-height: calc(100svh - var(--header-h));
   background: var(--fog);
 }
 .admin-nav {
   background: #fff;
   border-right: 1px solid var(--line);
-  padding: 28px 16px;
+  padding: 1.75rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.25rem;
 }
 .admin-nav-title {
-  font-weight: 900;
+  font-weight: 400;
   font-size: 1.4rem;
-  font-variation-settings: "wdth" 62;
-  padding: 0 12px 16px;
+  padding: 0 0.75rem 1rem;
 }
 .admin-nav a {
-  padding: 10px 12px;
+  padding: 0.625rem 0.75rem;
   border-radius: var(--r-field);
   text-decoration: none;
   font-weight: 600;
@@ -41,37 +40,37 @@
   color: var(--ink-soft);
 }
 .admin-main {
-  padding: clamp(20px, 4vw, 40px);
+  padding: clamp(1.25rem, 4vw, 2.5rem);
   min-width: 0;
   display: grid;
-  gap: 24px;
+  gap: 1.5rem;
   align-content: start;
 }
 .admin-title {
-  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-size: clamp(1.56rem, 3.12vw, 2.184rem);
 }
 .admin-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 1rem;
 }
 .admin-card {
   background: #fff;
   border-radius: var(--r-img);
-  padding: 24px;
+  padding: 1.5rem;
 }
 .admin-card h2 {
   font-size: 1.5rem;
-  margin-bottom: 12px;
+  margin-bottom: 0.75rem;
 }
 .admin-callout {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  padding: 18px 24px;
+  gap: 1rem;
+  padding: 1.125rem 1.5rem;
   background: var(--gum);
   color: #fff;
   border-radius: var(--r-img);
@@ -84,23 +83,22 @@
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 1rem;
   margin: 0;
 }
 .stats div {
   background: #fff;
   border-radius: var(--r-img);
-  padding: 20px;
+  padding: 1.25rem;
 }
 .stats dt {
   font-size: 0.9rem;
   color: var(--ink-soft);
 }
 .stats dd {
-  margin: 6px 0 0;
+  margin: 0.375rem 0 0;
   font-size: 2rem;
-  font-weight: 800;
-  font-variation-settings: "wdth" 75;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 .low-list {
@@ -108,24 +106,24 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
+  gap: 0.625rem;
 }
 .low-list li {
   display: grid;
 }
 .low-list a {
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .admin-search {
-  max-width: 340px;
-  min-height: 42px;
+  max-width: 21.25rem;
+  min-height: 2.625rem;
 }
 .admin-filters {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 12px;
+  gap: 0.75rem;
   align-items: center;
 }
 
@@ -141,7 +139,7 @@
 }
 .admin-table th,
 .admin-table td {
-  padding: 12px 16px;
+  padding: 0.75rem 1rem;
   text-align: left;
   border-bottom: 1px solid var(--line);
   vertical-align: middle;
@@ -157,19 +155,19 @@
 }
 .text-error {
   color: var(--error);
-  font-weight: 700;
+  font-weight: 500;
 }
 .admin-product-cell {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.75rem;
   text-decoration: none;
 }
 .admin-product-cell img {
-  width: 40px;
-  height: 50px;
+  width: 2.5rem;
+  height: 3.125rem;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 0.375rem;
 }
 .row-actions {
   white-space: nowrap;
@@ -179,73 +177,73 @@
 /* Formulario de producto */
 .product-form {
   display: grid;
-  gap: 24px;
+  gap: 1.5rem;
 }
 .product-form-grid {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
-  gap: 24px;
+  gap: 1.5rem;
   align-items: start;
 }
 .image-previews {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 0.5rem;
 }
 .image-previews img {
-  width: 64px;
-  height: 80px;
+  width: 4rem;
+  height: 5rem;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   background: var(--fog);
 }
 .check {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
   cursor: pointer;
 }
 .check input {
-  width: 18px;
-  height: 18px;
+  width: 1.125rem;
+  height: 1.125rem;
   accent-color: var(--gum);
 }
 .colors-editor {
   display: grid;
-  gap: 10px;
+  gap: 0.625rem;
   justify-items: start;
 }
 .color-row {
   display: grid;
-  grid-template-columns: 48px 1fr 180px auto;
-  gap: 10px;
+  grid-template-columns: 3rem 1fr 11.25rem auto;
+  gap: 0.625rem;
   align-items: center;
   width: 100%;
 }
 .color-row input[type="color"] {
-  width: 48px;
-  height: 48px;
+  width: 3rem;
+  height: 3rem;
   border: 1.5px solid var(--line);
   border-radius: var(--r-field);
-  padding: 4px;
+  padding: 0.25rem;
   background: #fff;
   cursor: pointer;
 }
 .sizes-editor {
   border: 0;
   padding: 0;
-  margin: 24px 0;
+  margin: 1.5rem 0;
 }
 .sizes-editor legend {
-  font-weight: 700;
-  margin-bottom: 10px;
+  font-weight: 500;
+  margin-bottom: 0.625rem;
 }
 .stock-table {
-  min-width: 480px;
+  min-width: 30rem;
 }
 .stock-table caption {
   text-align: left;
-  padding: 0 0 8px;
+  padding: 0 0 0.5rem;
 }
 .stock-table th[scope="row"] {
   white-space: nowrap;
@@ -253,12 +251,12 @@
 .stock-table th[scope="row"] .swatch {
   display: inline-block;
   vertical-align: middle;
-  margin-right: 6px;
+  margin-right: 0.375rem;
 }
 .stock-input {
-  width: 76px;
-  min-height: 40px;
-  padding: 6px 10px;
+  width: 4.75rem;
+  min-height: 2.5rem;
+  padding: 0.375rem 0.625rem;
   text-align: center;
 }
 
@@ -268,7 +266,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 8px;
+  gap: 0.5rem;
 }
 .admin-order {
   background: #fff;
@@ -278,17 +276,17 @@
 .admin-order-row {
   width: 100%;
   display: grid;
-  grid-template-columns: 70px 1fr auto 120px;
+  grid-template-columns: 4.375rem 1fr auto 7.5rem;
   align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
   border: 0;
   background: none;
   text-align: left;
   cursor: pointer;
 }
 .admin-order-row:hover {
-  background: #fafbfc;
+  background: #faf8f5;
 }
 .admin-order-row .num {
   text-align: right;
@@ -297,22 +295,22 @@
 .admin-order-detail {
   display: grid;
   grid-template-columns: 1.3fr 1fr 1fr;
-  gap: 24px;
-  padding: 4px 20px 24px;
+  gap: 1.5rem;
+  padding: 0.25rem 1.25rem 1.5rem;
   border-top: 1px solid var(--line);
 }
 .admin-order-detail h3 {
   font-size: 1.1rem;
-  margin: 16px 0 6px;
+  margin: 1rem 0 0.375rem;
 }
 .admin-order-detail ul {
   margin: 0;
-  padding-left: 18px;
+  padding-left: 1.125rem;
 }
 .admin-order-actions {
   display: grid;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 @media (max-width: 1000px) {
@@ -333,7 +331,7 @@
     flex-wrap: wrap;
     border-right: 0;
     border-bottom: 1px solid var(--line);
-    padding: 12px;
+    padding: 0.75rem;
   }
   .admin-nav-title {
     display: none;
@@ -346,25 +344,25 @@
     grid-template-columns: auto 1fr;
   }
   .color-row {
-    grid-template-columns: 48px 1fr;
+    grid-template-columns: 3rem 1fr;
   }
 }
 
 /* Personalizadas */
 .admin-custom {
   display: grid;
-  gap: 24px;
+  gap: 1.5rem;
 }
 .garments-admin {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(26.25rem, 1fr));
+  gap: 1rem;
 }
 .garment-admin {
   display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 16px;
-  padding: 16px;
+  grid-template-columns: 6.875rem 1fr;
+  gap: 1rem;
+  padding: 1rem;
   border: 1.5px solid var(--line);
   border-radius: var(--r-img);
 }
@@ -374,30 +372,30 @@
 .row-wrap {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 1rem;
 }
 .color-row-simple {
-  grid-template-columns: 48px 1fr auto;
-  max-width: 480px;
+  grid-template-columns: 3rem 1fr auto;
+  max-width: 30rem;
 }
 .tiers-editor {
   display: grid;
-  gap: 10px;
+  gap: 0.625rem;
   justify-items: start;
 }
 .tier-row {
   display: grid;
-  grid-template-columns: 180px 180px auto;
-  gap: 12px;
+  grid-template-columns: 11.25rem 11.25rem auto;
+  gap: 0.75rem;
   align-items: end;
 }
 .packs-admin {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+  gap: 1rem;
 }
 .pack-admin {
-  padding: 16px;
+  padding: 1rem;
   border: 1.5px solid var(--line);
   border-radius: var(--r-img);
 }
@@ -412,40 +410,40 @@
   cursor: pointer;
 }
 .design-grid-admin {
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  margin-top: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(8.75rem, 1fr));
+  margin-top: 0.75rem;
 }
 .design-grid-admin .design-thumb {
   cursor: default;
 }
 .design-grid-admin .input {
-  min-height: 36px;
-  padding: 4px 8px;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.5rem;
   font-size: 0.85rem;
 }
 
 /* Ficha de producción en pedidos */
 .production-item {
-  margin-top: 16px;
+  margin-top: 1rem;
 }
 .production-item h4 {
   font-size: 1rem;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
 .production {
   display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 16px;
-  padding: 12px;
+  grid-template-columns: 11.25rem 1fr;
+  gap: 1rem;
+  padding: 0.75rem;
   background: var(--fog);
-  border-radius: 12px;
-  margin-bottom: 10px;
+  border-radius: 0.75rem;
+  margin-bottom: 0.625rem;
   font-size: 0.92rem;
 }
 .production-tees {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: 0.375rem;
 }
 .production-tees figure {
   margin: 0;
@@ -454,8 +452,8 @@
   color: var(--ink-soft);
 }
 .production ul {
-  margin: 8px 0 0;
-  padding-left: 18px;
+  margin: 0.5rem 0 0;
+  padding-left: 1.125rem;
 }
 @media (max-width: 760px) {
   .garments-admin {
@@ -466,7 +464,7 @@
     grid-template-columns: 1fr;
   }
   .garment-admin .tee-mockup {
-    max-width: 120px;
+    max-width: 7.5rem;
   }
   .tier-row {
     grid-template-columns: 1fr 1fr;
