@@ -17,8 +17,8 @@
   --gum-dark: #000000;
   --sun: #c9d1b1;        /* verde salvia: ofertas */
   --ok: #4d6b3c;         /* verde musgo */
-  --adi: #00573f;        /* verde oscuro estilo zapatilla de moda ("collegiate green") sobre fondos claros */
-  --adi-bright: #00a651; /* el mismo verde, un poco más claro para leerse sobre fondos oscuros */
+  --adi: #003d2b;        /* verde bosque bien oscuro, sobre fondos claros */
+  --adi-bright: #008a45; /* el mismo verde, apenas más claro para leerse sobre fondos oscuros */
   --error: #b3261e;
 
   --font: "Inter Tight", "Helvetica Neue", system-ui, -apple-system, "Segoe UI", sans-serif;
