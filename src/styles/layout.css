@@ -37,17 +37,29 @@
 .site-header.is-dark .brand img {
   filter: invert(1);
 }
-.site-header.is-dark .main-nav .nav-accent:not(.active) {
-  color: var(--sun);
+/* "Diseñá la tuya" y "Panel": verde intenso con brillo */
+.main-nav .nav-accent:not(.active),
+.main-nav .nav-admin {
+  color: var(--adi);
+  animation: green-glow 3s ease-in-out infinite alternate;
 }
-/* "Diseñá la tuya": mismo brillo blanco que las miniaturas de la portada */
-.site-header.is-dark .main-nav .nav-accent {
-  animation: text-glow 3s ease-in-out infinite alternate;
+.site-header.is-dark .main-nav .nav-accent:not(.active),
+.site-header.is-dark .main-nav .nav-admin {
+  color: var(--adi-bright);
+}
+@keyframes green-glow {
+  from {
+    text-shadow: 0 0 0.25rem rgba(0, 210, 106, 0.2);
+  }
+  to {
+    text-shadow: 0 0 0.75rem rgba(0, 210, 106, 0.65);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .site-header.is-dark .main-nav .nav-accent {
+  .main-nav .nav-accent:not(.active),
+  .main-nav .nav-admin {
     animation: none;
-    text-shadow: 0 0 0.5rem rgba(255, 255, 255, 0.45);
+    text-shadow: 0 0 0.5rem rgba(0, 210, 106, 0.45);
   }
 }
 .site-header.is-dark .icon-btn:hover {
@@ -99,9 +111,6 @@
 .main-nav a:hover,
 .main-nav a.active {
   text-decoration-line: underline;
-}
-.main-nav .nav-admin {
-  color: var(--ok);
 }
 .header-actions {
   display: flex;
@@ -190,8 +199,10 @@
     padding: 0.875rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   }
+  /* El menú del celular tiene fondo oscuro: verde luminoso */
+  .main-nav .nav-accent:not(.active),
   .main-nav .nav-admin {
-    color: var(--sun);
+    color: var(--adi-bright);
   }
 }
 
@@ -480,6 +491,3 @@
   font-variant-numeric: tabular-nums;
 }
 
-.main-nav .nav-accent:not(.active) {
-  color: var(--ok);
-}
