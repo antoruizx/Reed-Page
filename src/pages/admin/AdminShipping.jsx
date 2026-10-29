@@ -76,7 +76,8 @@ export default function AdminShipping() {
       <section className="admin-card">
         <h2>Zonas de envío</h2>
         <p className="hint">
-          Tocá una provincia para sumarla o sacarla de la zona. Si el pedido supera el mínimo, el envío es gratis (0 = nunca gratis).
+          Cada provincia va en una sola zona. Las que no estén en ninguna usan el precio de "Resto del país". Si el pedido supera el
+          mínimo, el envío es gratis (0 = nunca gratis).
         </p>
         <div className="zones-admin">
           {zones.map((z, i) => (
@@ -89,23 +90,33 @@ export default function AdminShipping() {
                 <MoneyField label="Costo de envío" value={z.cost} onChange={(v) => setZone(i, { cost: v })} />
                 <MoneyField label="Gratis desde" value={z.freeFrom} onChange={(v) => setZone(i, { freeFrom: v })} hint={z.freeFrom ? money(z.freeFrom) : "Nunca gratis"} />
               </div>
-              <div className="chips">
-                {PROVINCES.map((p) => {
-                  const mine = z.provinces.includes(p);
-                  const other = !mine && assigned.has(p);
-                  return (
-                    <button
-                      key={p}
-                      type="button"
-                      className={`chip chip-sm ${mine ? "active" : ""} ${other ? "is-other" : ""}`}
-                      aria-pressed={mine}
-                      title={other ? "Está en otra zona: tocala para pasarla a esta" : undefined}
-                      onClick={() => toggleProvince(i, p)}
-                    >
-                      {p}
+              <div className="zone-provinces">
+                <span className="hint">Provincias de esta zona:</span>
+                {z.provinces.length === 0 && <span className="hint zone-empty">Ninguna todavía</span>}
+                <div className="chips">
+                  {z.provinces.map((p) => (
+                    <button key={p} type="button" className="chip chip-sm active" onClick={() => toggleProvince(i, p)} aria-label={`Quitar ${p} de ${z.name}`}>
+                      {p} ✕
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
+                <select
+                  className="select zone-add"
+                  value=""
+                  aria-label={`Agregar provincia a ${z.name}`}
+                  onChange={(e) => e.target.value && toggleProvince(i, e.target.value)}
+                >
+                  <option value="">+ Agregar provincia</option>
+                  {PROVINCES.filter((p) => !z.provinces.includes(p)).map((p) => {
+                    const from = zones.find((other) => other.provinces.includes(p));
+                    return (
+                      <option key={p} value={p}>
+                        {p}
+                        {from ? ` (se saca de ${from.name})` : ""}
+                      </option>
+                    );
+                  })}
+                </select>
               </div>
               <button
                 type="button"

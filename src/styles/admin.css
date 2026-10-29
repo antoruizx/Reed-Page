@@ -486,8 +486,14 @@
 .zone-head {
   width: 100%;
 }
-.chip.is-other {
-  opacity: 0.45;
+.zone-provinces {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  width: 100%;
+}
+.zone-add {
+  max-width: 20rem;
 }
 .zone-other-title {
   margin-top: 1.75rem;
