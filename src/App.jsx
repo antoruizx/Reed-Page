@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Route, Routes, useLocation } from "react-router";
+import { Navigate, Route, Routes, useLocation } from "react-router";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
@@ -45,6 +45,15 @@ export default function App() {
             <Route path="/pedido/:id" element={<OrderPage />} />
             <Route path="/ingresar" element={<Login />} />
             <Route path="/registro" element={<Register />} />
+            {/* Rutas de la versión anterior del sitio */}
+            <Route path="/login" element={<Navigate to="/ingresar" replace />} />
+            <Route path="/signin" element={<Navigate to="/registro" replace />} />
+            <Route path="/register" element={<Navigate to="/registro" replace />} />
+            <Route path="/products" element={<Navigate to="/tienda" replace />} />
+            <Route path="/aboutUs" element={<Navigate to="/nosotros" replace />} />
+            <Route path="/contactUs" element={<Navigate to="/contacto" replace />} />
+            <Route path="/profile" element={<Navigate to="/cuenta" replace />} />
+            <Route path="/adminpanel" element={<Navigate to="/admin" replace />} />
             <Route
               path="/cuenta"
               element={
